@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#202326" />
+    <meta name="application-name" content="Malth Pro" />
+    <title>Malth Pro</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="./assets/malth-pro-m-32.png" />
+    <link rel="apple-touch-icon" sizes="192x192" href="./assets/malth-pro-m-192.png" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand-lockup" href="#input" aria-label="Malth Pro">
+          <img class="brand-icon" src="./assets/malth-pro-m-192.png" alt="" />
+          <span class="brand-malth">Malth</span><span class="brand-name"><b>PRO</b></span>
+        </a>
+        <div class="topbar-actions">
+          <button class="icon-button" id="settingsJump" type="button" aria-label="Configurações" title="Configurações">
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M8.8 2.8h2.4l.5 1.7 1.5.6 1.6-.8 1.7 1.7-.8 1.6.6 1.5 1.7.5V12l-1.7.5-.6 1.5.8 1.6-1.7 1.7-1.6-.8-1.5.6-.5 1.7H8.8l-.5-1.7-1.5-.6-1.6.8-1.7-1.7.8-1.6-.6-1.5L2 12V9.6l1.7-.5.6-1.5-.8-1.6 1.7-1.7 1.6.8 1.5-.6.5-1.7Z"/><circle cx="10" cy="10.8" r="2.4"/></svg>
+          </button>
+          <button class="window-button" id="minimizeWindow" type="button" aria-label="Minimizar" aria-expanded="true" title="Minimizar">
+            <svg class="minimize-mark" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10"/></svg>
+            <svg class="restore-mark" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 3.5h9v9h-9z"/></svg>
+          </button>
+          <button class="window-button window-close" id="closeWindow" type="button" aria-label="Fechar Malth Pro" title="Fechar"><span aria-hidden="true">×</span></button>
+        </div>
+      </header>
+
+      <nav class="tabs" aria-label="Seções">
+        <button class="tab is-active" data-tab="input" type="button">Principal</button>
+        <button class="tab" data-tab="output" type="button">Force Feedback</button>
+        <button class="tab" data-tab="shifter" type="button">Câmbio</button>
+      </nav>
+
+      <main class="main-content">
+        <section class="page is-active" id="page-input" aria-labelledby="inputHeading">
+          <h1 class="sr-only" id="inputHeading">Principal</h1>
+          <div class="input-layout" id="inputLayout">
+            <section class="panel wheel-panel">
+              <div class="wheel-angle">
+                <div class="range-heading"><span>Ângulo</span><strong id="steeringAngleValue">540°</strong></div>
+                <input id="steeringRange" class="range-input" type="range" min="30" max="2160" step="10" data-setting="steeringAngleCfg" aria-label="Ângulo do volante" />
+              </div>
+              <div class="wheel-stage">
+                <div class="wheel-readout" id="steeringReadout">0°</div>
+                <img class="wheel-illustration" src="./steering-wheel.png" alt="Volante" />
+              </div>
+              <button id="centerButton" class="button button-secondary center-button" type="button">Centralizar ◎</button>
+            </section>
+
+            <section class="panel linearity-panel" id="linearityPanel" aria-label="Linearidade do freio">
+              <div class="linearity-chart-area">
+                <div class="linearity-readouts"><span>Bruto: <b>1023</b></span><span>Convertido: <b id="curveConvReadout">1023</b></span></div>
+                <svg class="linearity-graph" viewBox="0 0 270 235" role="img" aria-label="Gráfico de conversão do freio">
+                  <g class="graph-grid"><path d="M42 15V210H260M42 171H260M42 132H260M42 93H260M42 54H260M85 15V210M129 15V210M173 15V210M217 15V210"/></g>
+                  <g class="graph-labels"><text x="3" y="213">0</text><text x="0" y="174">200</text><text x="0" y="135">400</text><text x="0" y="96">600</text><text x="0" y="57">800</text><text x="0" y="18">1000</text></g>
+                  <path class="graph-curve" id="brakeCurvePath" d="M42 210 260 15" />
+                  <g id="brakeCurvePoints" class="graph-points"></g>
+                  <g id="brakeCurveLabels" class="graph-point-labels"></g>
+                </svg>
+              </div>
+              <div class="linearity-controls">
+                <div id="linearityRows" class="linearity-rows"></div>
+                <div class="linearity-actions"><button id="linearityDone" class="button button-secondary" type="button">Concluir ✓</button><button id="linearityReset" class="button button-secondary" type="button">Restaurar ↻</button></div>
+              </div>
+            </section>
+
+            <section class="panel inputs-panel">
+              <div class="pedal-group pedal-group-top">
+                <div class="pedal-control" data-pedal="accel">
+                  <div class="pedal-minmax"><button class="pedal-calibration-button" type="button" data-capture-pedal="accel" data-endpoint="min" aria-label="Definir mínimo do acelerador">Mínimo</button><strong>Acelerador</strong><button class="pedal-calibration-button" type="button" data-capture-pedal="accel" data-endpoint="max" aria-label="Definir máximo do acelerador">Máximo</button></div>
+                  <div class="pedal-signal" data-pedal-meter="accel" role="meter" aria-label="Acelerador" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></div>
+                </div>
+                <div class="pedal-control brake-control" data-pedal="brake">
+                  <div class="pedal-minmax"><button class="pedal-calibration-button" type="button" data-capture-pedal="brake" data-endpoint="min" aria-label="Definir mínimo do freio">Mínimo</button><strong>Freio</strong><button class="pedal-calibration-button" type="button" data-capture-pedal="brake" data-endpoint="max" aria-label="Definir máximo do freio">Máximo</button></div>
+                  <div class="pedal-signal" data-pedal-meter="brake" role="meter" aria-label="Freio" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></div>
+                </div>
+              </div>
+              <button class="linearity-button" id="brakeLinearity" type="button">Linearidade do freio <span>↗</span></button>
+              <div class="pedal-group pedal-group-bottom">
+                <div class="pedal-control optional-pedal" data-pedal="clutch">
+                  <div class="pedal-minmax"><button class="pedal-calibration-button" type="button" data-capture-pedal="clutch" data-endpoint="min" aria-label="Definir mínimo da embreagem">Mínimo</button><label class="pedal-check"><input type="checkbox" data-setting="enableClutchCfg"><span></span> Embreagem</label><button class="pedal-calibration-button" type="button" data-capture-pedal="clutch" data-endpoint="max" aria-label="Definir máximo da embreagem">Máximo</button></div>
+                  <div class="pedal-signal" data-pedal-meter="clutch" role="meter" aria-label="Embreagem" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></div>
+                </div>
+                <div class="pedal-control optional-pedal last-pedal" data-pedal="handbrake">
+                  <div class="pedal-minmax"><button class="pedal-calibration-button" type="button" data-capture-pedal="handbrake" data-endpoint="min" aria-label="Definir mínimo do freio de mão">Mínimo</button><label class="pedal-check"><input type="checkbox" data-setting="enableHandbrakeCfg"><span></span> Freio de mão</label><button class="pedal-calibration-button" type="button" data-capture-pedal="handbrake" data-endpoint="max" aria-label="Definir máximo do freio de mão">Máximo</button></div>
+                  <div class="pedal-signal" data-pedal-meter="handbrake" role="meter" aria-label="Freio de mão" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="page" id="page-output" aria-labelledby="outputHeading">
+          <h1 class="sr-only" id="outputHeading">Force Feedback</h1>
+          <div class="output-grid">
+            <section class="output-column output-main">
+              <div class="panel output-limits">
+                <div class="output-slider"><label>Batente rígido <span><b data-value="hardLockCfg"></b>%</span></label><input class="range-input" type="range" min="0" max="100" data-setting="hardLockCfg" /></div>
+                <div class="output-slider"><label>Batente suave <span><b data-value="softLockCfg"></b>%</span></label><input class="range-input" type="range" min="0" max="100" data-setting="softLockCfg" /></div>
+                <div class="output-slider"><label>Força mínima <span><b data-value="minforceCfg"></b>%</span></label><input class="range-input" type="range" min="0" max="100" data-setting="minforceCfg" /></div>
+                <div class="output-slider"><label>Força máxima <span><b data-value="maxForceCfg"></b>%</span></label><input class="range-input" type="range" min="0" max="100" data-setting="maxForceCfg" /></div>
+              </div>
+              <div class="panel desktop-effect">
+                <div class="desktop-title"><span>Efeito fora do jogo</span><span class="effect-status" id="desktopEffectStatus">Desligado</span></div>
+                <div class="desktop-controls"><select data-setting="effectTypeCfg" aria-label="Tipo de efeito fora do jogo"><option value="Off">Desligado</option><option value="Spring">Mola</option><option value="Damper">Amortecimento</option><option value="Friction">Atrito</option></select><label>Força <output data-value="desktopEffectForceCfg"></output>%</label></div>
+                <input class="range-input" type="range" min="0" max="100" data-setting="desktopEffectForceCfg" />
+              </div>
+            </section>
+            <section class="output-column" id="forceEffects" aria-label="Forças e escalas"></section>
+            <section class="output-column" id="filterEffects" aria-label="Amortecimento e filtros"></section>
+          </div>
+        </section>
+
+        <section class="page" id="page-shifter" aria-labelledby="shifterHeading">
+          <h1 class="sr-only" id="shifterHeading">Câmbio</h1>
+          <div class="shifter-layout">
+            <section class="panel shifter-mode-panel">
+              <label class="shifter-mode-label">Tipo de câmbio<select class="select-control" data-setting="shifterModeCfg"><option value="0">Sequencial</option><option value="1">H-Shifter</option></select></label>
+              <strong id="currentGear" class="current-gear">N</strong>
+              <p class="shifter-mode-hint" id="shifterModeHint">Movimento X/Y · configure cada marcha</p>
+              <button id="calibrateButton" class="button button-secondary calibrate-button" type="button">Calibrar ⚒</button>
+            </section>
+            <section class="panel shifter-console-panel" aria-label="Câmbio ao vivo e ajustes">
+              <div class="shifter-console-main">
+                <div class="shifter-map-panel">
+                  <div class="shifter-map-layout">
+                    <div class="coordinate-map">
+                      <span class="map-y-label" id="mapYTopLabel">Y máximo</span><span class="map-y-label map-y-bottom" id="mapYBottomLabel">Y mínimo</span>
+                      <div class="map-area" id="shifterGate" aria-label="Mapa X/Y do câmbio">
+                        <button class="gear-cell" type="button" data-gear="1" aria-label="Primeira marcha"></button>
+                        <button class="gear-cell" type="button" data-gear="3" aria-label="Terceira marcha"></button>
+                        <button class="gear-cell" type="button" data-gear="5" aria-label="Quinta marcha"></button>
+                        <button class="gear-cell" type="button" data-gear="7" aria-label="Sétima marcha"></button>
+                        <button class="gear-cell" type="button" data-gear="2" aria-label="Segunda marcha"></button>
+                        <button class="gear-cell" type="button" data-gear="4" aria-label="Quarta marcha"></button>
+                        <button class="gear-cell" type="button" data-gear="6" aria-label="Sexta marcha"></button>
+                        <button class="gear-cell" type="button" data-gear="R" aria-label="Marcha ré"></button>
+                        <span class="map-guide-line map-guide-y" id="yHighGuide" aria-hidden="true"></span>
+                        <span class="map-guide-line map-guide-y" id="yLowGuide" aria-hidden="true"></span>
+                        <span class="map-guide-line map-guide-x" id="xHighGuide" aria-hidden="true"></span>
+                        <span class="map-guide-line map-guide-x" id="xMidGuide" aria-hidden="true"></span>
+                        <span class="map-guide-line map-guide-x" id="xLowGuide" aria-hidden="true"></span>
+                        <span class="map-point" id="shifterPoint"></span>
+                      </div>
+                      <span class="map-readout"><span class="map-readout-x" id="shifterXReadoutRow">X : <b id="shifterXReadout">—</b></span><span class="map-readout-y">Y : <b id="shifterYReadout">—</b></span></span>
+                      <div class="map-x-labels"><span>X mínimo <b data-value="xMinCfg"></b></span><span>X máximo <b data-value="xMaxCfg"></b></span></div>
+                    </div>
+                    <div class="map-thresholds"><label>Y mínimo<input type="number" min="0" max="1023" data-setting="yMinCfg" /></label><label>Y máximo<input type="number" min="0" max="1023" data-setting="yMaxCfg" /></label><label>X mínimo<input type="number" min="0" max="1023" data-setting="xMinCfg" /></label><label>X máximo<input type="number" min="0" max="1023" data-setting="xMaxCfg" /></label></div>
+                  </div>
+                  <p class="shifter-calibration-hint" id="shifterCalibrationHint" hidden>Coloque a alavanca em cada marcha e clique no quadrado correspondente.</p>
+                  <div class="map-actions"><button id="resetShifter" class="button button-secondary" type="button">Restaurar ↻</button><button id="saveShifter" class="button button-secondary" type="button">Salvar ▣</button><button id="okShifter" class="button button-secondary" type="button">Concluir</button></div>
+                </div>
+                <div class="shifter-sliders">
+                  <div class="threshold-slider"><label>Y superior <span><b data-value="yHighCfg"></b></span></label><input class="range-input" type="range" min="0" max="1023" data-setting="yHighCfg" /></div>
+                  <div class="threshold-slider"><label>Y inferior <span><b data-value="yLowCfg"></b></span></label><input class="range-input" type="range" min="0" max="1023" data-setting="yLowCfg" /></div>
+                  <div class="threshold-slider threshold-slider-x"><label>X superior <span><b data-value="xHighCfg"></b></span></label><input class="range-input" type="range" min="0" max="1023" data-setting="xHighCfg" /></div>
+                  <div class="threshold-slider threshold-slider-x"><label>X central <span><b data-value="xMidCfg"></b></span></label><input class="range-input" type="range" min="0" max="1023" data-setting="xMidCfg" /></div>
+                  <div class="threshold-slider threshold-slider-x"><label>X inferior <span><b data-value="xLowCfg"></b></span></label><input class="range-input" type="range" min="0" max="1023" data-setting="xLowCfg" /></div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </section>
+      </main>
+
+      <footer class="bottom-bar">
+        <button class="firmware-status" id="connectButton" type="button" aria-label="Status da conexão do volante"><span class="usb-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.7"/><path d="m5.2 7.2 4.8 3M18.8 7.2l-4.8 3M12 14.7v5.8"/></svg></span><span><strong>VOLANTE</strong><small id="connectionStatus">Aguardando controle</small></span></button>
+        <div class="profile-controls"><span class="profile-label">Perfil</span><select id="profileSelect" aria-label="Perfil ativo"></select><button id="newProfile" class="footer-icon add-icon" type="button" title="Novo perfil" aria-label="Novo perfil">+</button><button id="deleteProfile" class="footer-icon delete-icon" type="button" title="Excluir perfil" aria-label="Excluir perfil">▣</button><button id="importProfile" class="footer-icon" type="button" title="Importar perfil JSON" aria-label="Importar perfil JSON"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v10m0 0 3.5-3.5M10 13 6.5 9.5M4 15v2h12v-2"/></svg></button><button id="exportProfile" class="footer-icon" type="button" title="Exportar perfil JSON" aria-label="Exportar perfil JSON"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 13V3m0 0L6.5 6.5M10 3l3.5 3.5M4 12v4h12v-4"/></svg></button><button id="saveProfile" class="button button-save" type="button">Salvar</button></div>
+        <div class="bottom-right"><span id="saveState" class="save-state">Salvo localmente</span></div>
+      </footer>
+    </div>
+
+    <section class="closed-state" id="closedState" aria-label="Malth Pro fechado" hidden>
+      <div class="closed-card">
+        <div class="brand-lockup" aria-label="Malth Pro"><span class="brand-malth">Malth</span><span class="brand-name"><b>PRO</b></span></div>
+        <p>A interface foi fechada.</p>
+        <button class="button button-secondary" id="reopenApp" type="button">Reabrir Malth Pro</button>
+      </div>
+    </section>
+
+    <input id="importFile" type="file" accept="application/json,.json" hidden />
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <dialog id="settingsDialog" class="app-dialog settings-dialog" aria-label="Configurações do dispositivo">
+      <section class="settings-section">
+        <div class="settings-legend">Codificador</div>
+        <div class="settings-cpr-row">
+          <label for="cprField">CPR</label>
+          <label class="settings-cpr-value"><small>Após ×4</small><input id="cprField" type="number" min="4" max="32000" step="1" data-setting="cprCfg" /></label>
+          <label class="z-index-toggle" title="O sinal Z não está conectado no esquema desta versão."><input type="checkbox" data-setting="useIndexCfg" disabled /><span></span>Índice Z</label>
+        </div>
+      </section>
+      <section class="settings-section">
+        <div class="settings-legend">Ponte H</div>
+        <label class="settings-select-row"><span>Modelo</span><select data-setting="hbridgeCfg"><option>BTS7960</option><option value="Select" hidden>Selecionar</option></select></label>
+        <label class="settings-select-row"><span>Modo</span><select data-setting="driveModeCfg"><option>2PWM + 1DIR</option><option disabled>1PWM + 1DIR</option><option disabled>1PWM + 2DIR</option><option disabled>2PWM + 2DIR</option></select></label>
+      </section>
+      <section class="settings-section settings-frequency">
+        <div class="settings-legend">Frequência PWM</div>
+        <label class="settings-select-row"><span>Frequência</span><select data-setting="pwmFreqCfg"><option>4KHz</option><option>5KHz</option><option>6KHz</option><option>7KHz</option><option>8KHz</option><option>9KHz</option><option>10KHz</option><option>11KHz</option><option>12KHz</option><option>13KHz</option><option>14KHz</option><option>15KHz</option><option>16KHz</option><option>17KHz</option><option>18KHz</option><option>19KHz</option><option>20KHz</option></select></label>
+      </section>
+      <div class="settings-actions"><button class="button button-secondary" id="settingsSave" type="button">Salvar ▣</button><button class="button button-secondary" id="closeSettings" type="button">Fechar ×</button></div>
+    </dialog>
+
+    <dialog id="connectDialog" class="app-dialog small-dialog">
+      <div class="dialog-head"><div><p class="eyebrow">VOLANTE</p><h2>Arduino Leonardo</h2></div><button class="dialog-close" id="closeConnect" type="button" aria-label="Fechar">×</button></div>
+      <p class="dialog-copy">O Force Feedback é habilitado após conectar e aplicar o perfil. Deixe o volante reto ao conectar: a posição inicial será o centro. Use Centralizar para corrigir essa referência. Em jogos sem FFB, selecione Mola em Efeito fora do jogo. Esc interrompe a força; Centralizar retoma. Mantenha o aplicativo aberto. Limite de bancada: 25%.</p>
+      <div class="dialog-footer"><span id="motorState">Aguardando conexão</span><button class="button button-secondary" id="disconnectDevice" type="button" disabled>Desconectar</button></div>
+      <div class="dialog-footer"><span id="connectionDetails">Aguardando controle</span><button class="button button-secondary" id="closeConnectDone" type="button">Concluir</button></div>
+    </dialog>
+
+    <script src="./app.js"></script>
+  </body>
+</html>

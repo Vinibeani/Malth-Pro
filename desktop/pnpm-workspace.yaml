@@ -1,0 +1,5 @@
+packages:
+  - .
+allowBuilds:
+  '@serialport/bindings-cpp': true
+  electron-winstaller: false

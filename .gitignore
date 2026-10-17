@@ -1,0 +1,27 @@
+# Dependencias e arquivos gerados
+**/node_modules/
+/dist/
+/firmware/build/
+/firmware/tooling/
+/firmware/releases/*.elf
+/firmware/releases/*.eep
+/firmware/releases/*with_bootloader*
+/firmware/releases/MalthProLeonardo.ino.*
+
+# Materiais de pesquisa e ferramentas externas ao aplicativo
+/sources/
+/rea/
+/docs/*-analysis/
+
+# Configuracoes locais e certificados
+.env
+.env.*
+!.env.example
+*.pfx
+*.p12
+*.key
+*.log
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

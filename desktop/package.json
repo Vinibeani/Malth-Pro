@@ -1,0 +1,81 @@
+{
+  "name": "malth-pro-desktop",
+  "version": "1.2.3",
+  "private": true,
+  "description": "Malth Pro para Windows",
+  "productName": "Malth Pro",
+  "main": "main.cjs",
+  "author": "Malth Pro",
+  "license": "UNLICENSED",
+  "scripts": {
+    "start": "electron .",
+    "dist:win": "node scripts/package-windows.cjs"
+  },
+  "dependencies": {
+    "serialport": "^13.0.0"
+  },
+  "devDependencies": {
+    "electron": "44.7.2",
+    "electron-builder": "^26.0.0"
+  },
+  "build": {
+    "forceCodeSigning": true,
+    "npmRebuild": false,
+    "appId": "com.malthpro.desktop",
+    "productName": "Malth Pro",
+    "directories": {
+      "output": "../dist/windows"
+    },
+    "files": [
+      "main.cjs",
+      "preload.cjs",
+      "device-link.cjs",
+      "motor-session.cjs",
+      "device-protocol.cjs",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "../firmware/releases/MalthPro-Leonardo-v0.1.0.hex",
+        "to": "firmware/MalthPro-Leonardo-v0.1.0.hex"
+      },
+      {
+        "from": "../firmware/README.md",
+        "to": "firmware/LEIA-ME.md"
+      },
+      {
+        "from": "../malth-control",
+        "to": "ui",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "assets/malth-pro.ico",
+      "signtoolOptions": {
+        "certificateSubjectName": "Malth Pro",
+        "publisherName": "CN=Malth Pro"
+      },
+      "verifyUpdateCodeSignature": false
+    },
+    "nsis": {
+      "installerLanguages": ["pt_BR"],
+      "language": "1046",
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Malth Pro"
+    }
+  }
+}
