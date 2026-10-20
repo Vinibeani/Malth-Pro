@@ -3,7 +3,7 @@
 Aplicativo para Windows e firmware para Arduino Leonardo, desenvolvidos para
 configurar um volante com Force Feedback, pedais e câmbio.
 
-Projeto pessoal, mantido neste repositório privado para backup e controle de versões.
+Projeto pessoal, mantido neste repositório para backup e controle de versões.
 
 ![Interface do Malth Pro](docs/images/malth-pro-principal.png)
 
