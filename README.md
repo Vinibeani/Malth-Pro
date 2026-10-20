@@ -88,7 +88,7 @@ Na primeira execução, o script precisa de internet para baixar o Arduino CLI e
 as ferramentas de compilação. O arquivo gerado será:
 
 ```text
-firmware/releases/MalthPro-Leonardo-v0.1.2.hex
+firmware/releases/MalthPro-v0.1.2.hex
 ```
 
 ### 2. Identificar a porta do Leonardo
@@ -108,7 +108,7 @@ O script solicita a entrada no bootloader Caterina e faz a gravação pelo USB.
 A porta pode mudar temporariamente durante esse processo.
 
 Se utilizar outro gravador, selecione **Arduino Leonardo** e o arquivo
-`MalthPro-Leonardo-v0.1.2.hex`. **Não use o arquivo `with_bootloader` para gravação USB.**
+`MalthPro-v0.1.2.hex`. **Não use o arquivo `with_bootloader` para gravação USB.**
 
 Se a gravação falhar, confira a porta COM e se algum programa ainda está usando
 o Arduino. Mais detalhes: [firmware/README.md](firmware/README.md).
