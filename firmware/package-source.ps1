@@ -11,7 +11,7 @@ Copy-Item -LiteralPath (Join-Path $repoRoot 'malth-control') -Destination $packa
 $docsStage = Join-Path $packageRoot 'docs'
 New-Item -ItemType Directory -Force $docsStage | Out-Null
 Copy-Item -LiteralPath (Join-Path $repoRoot 'docs/images') -Destination $docsStage -Recurse -Force
-foreach ($name in @('PROJECT_STATUS.md','ARCHITECTURE_TRACE.md','UPDATE_1.2.4.md','UPDATE_1.2.5.md','PWM_BTS7960.md')) {
+foreach ($name in @('PROJECT_STATUS.md','ARCHITECTURE_TRACE.md','UPDATE_1.2.4.md','UPDATE_1.2.5.md','UPDATE_1.2.6.md','PWM_BTS7960.md')) {
   Copy-Item -LiteralPath (Join-Path $repoRoot "docs/$name") -Destination $docsStage -Force
 }
 $desktopStage = Join-Path $packageRoot 'desktop'
@@ -25,7 +25,7 @@ foreach ($name in @('Leonardo','libraries','tests','.gitignore','README.md','THI
   Copy-Item -LiteralPath (Join-Path $PSScriptRoot $name) -Destination $firmwareStage -Recurse -Force
 }
 New-Item -ItemType Directory -Force (Join-Path $firmwareStage 'releases') | Out-Null
-Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'releases/MalthPro-Leonardo-v0.1.2.hex') -Destination (Join-Path $firmwareStage 'releases') -Force
+Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'releases/Malth Pro-v0.1.2.hex') -Destination (Join-Path $firmwareStage 'releases') -Force
 # Fontes exatas do core tambem acompanham a distribuicao para consulta/religacao.
 $core = Join-Path $PSScriptRoot 'tooling/data/packages/arduino/hardware/avr/1.8.8'
 if (-not (Test-Path -LiteralPath $core -PathType Container)) {

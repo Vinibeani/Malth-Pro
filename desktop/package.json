@@ -1,6 +1,6 @@
 {
   "name": "malth-pro-desktop",
-  "version": "1.2.5",
+  "version": "1.2.6",
   "private": true,
   "description": "Malth Pro para Windows",
   "productName": "Malth Pro",
@@ -36,8 +36,8 @@
     ],
     "extraResources": [
       {
-        "from": "../firmware/releases/MalthPro-Leonardo-v0.1.2.hex",
-        "to": "firmware/MalthPro-Leonardo-v0.1.2.hex"
+        "from": "../firmware/releases/Malth Pro-v0.1.2.hex",
+        "to": "firmware/Malth Pro-v0.1.2.hex"
       },
       {
         "from": "../firmware/README.md",
@@ -68,6 +68,7 @@
       "verifyUpdateCodeSignature": false
     },
     "nsis": {
+      "artifactName": "Malth Pro v${version}.${ext}",
       "installerLanguages": ["pt_BR"],
       "language": "1046",
       "oneClick": false,

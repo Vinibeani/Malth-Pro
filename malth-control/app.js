@@ -381,10 +381,13 @@
       yHighGuide: ['top', settings.yHighCfg],
       yLowGuide: ['top', settings.yLowCfg],
     };
+    const mapPercent = (value) => Math.max(0, Math.min(1023, Number(value) || 0)) / 1023 * 100;
     Object.entries(guidePositions).forEach(([id, [axis, value]]) => {
-      const position = `${Math.max(0, Math.min(1023, Number(value) || 0)) / 1023 * 100}%`;
-      $(`#${id}`).style[axis] = position;
+      $(`#${id}`).style[axis] = `${mapPercent(value)}%`;
     });
+    const columns = [0, settings.xLowCfg, settings.xMidCfg, settings.xHighCfg, 1023].map(mapPercent);
+    const topEnd = mapPercent(settings.yLowCfg);
+    const bottomStart = mapPercent(settings.yHighCfg);
     if (hasLivePosition) {
       const xPercent = isSequential ? 50 : (latestShifterPosition.x / 1023) * 100;
       const yPercent = (latestShifterPosition.y / 1023) * 100;
@@ -407,6 +410,14 @@
     gate.classList.toggle('is-calibrating', shifterCalibrationMode);
     $$('.gear-cell', gate).forEach((cell) => {
       const gear = cell.dataset.gear;
+      const gearIndex = gear === 'R' ? 7 : Number(gear) - 1;
+      const column = Math.floor(gearIndex / 2);
+      const bottom = gearIndex % 2 === 1;
+      // Hit areas and highlights share the adjustable blue XY boundaries.
+      cell.style.left = `${columns[column]}%`;
+      cell.style.width = `${Math.max(0, columns[column + 1] - columns[column])}%`;
+      cell.style.top = `${bottom ? bottomStart : 0}%`;
+      cell.style.height = `${bottom ? 100 - bottomStart : topEnd}%`;
       const hasCustomPoint = activeProfile.settings[`gear${gear}XCfg`] !== shifterGearDefaults[`gear${gear}XCfg`] ||
         activeProfile.settings[`gear${gear}YCfg`] !== shifterGearDefaults[`gear${gear}YCfg`];
       cell.classList.toggle('is-active', isHShifter && gear === activeGear);

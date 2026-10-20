@@ -149,11 +149,10 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 1px s
 .shifter-map-panel { min-width: 0; display: flex; flex-direction: column; }
 .shifter-map-layout { min-height: 0; flex: 1; display: grid; grid-template-columns: minmax(0, 1fr) 73px; gap: 7px; }
 .coordinate-map { position: relative; min-width: 0; min-height: 140px; padding: 8px 7px 23px 22px; }
-.map-area { position: absolute; inset: 10px 8px 27px 26px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-template-rows: repeat(2, minmax(0, 1fr)); overflow: hidden; border: 1px solid #4a4b4c; background-image: linear-gradient(#42444545 1px, transparent 1px), linear-gradient(90deg, #42444545 1px, transparent 1px); background-size: 25% 50%; }
-.gear-cell { z-index: 1; min-width: 0; justify-content: center; border: 1px solid #4a4b4c55; color: #888b8c; background: #2022234a; font: 500 9px 'Space Grotesk', sans-serif; cursor: pointer; transition: background .12s, color .12s, border-color .12s; }
-.gear-cell:hover, .map-area.is-calibrating .gear-cell { border-color: #167995; color: #c8eaf2; background: #12313b66; }
-.gear-cell.is-captured { border-color: #177c98; color: #c4e6ed; }
-.gear-cell.is-active { border-color: var(--cyan); color: #151b1d; background: var(--cyan); box-shadow: 0 0 12px #22a9d455; }
+.map-area { position: absolute; inset: 10px 8px 27px 26px; overflow: hidden; border: 1px solid #4a4b4c; background: #1d1f20; }
+.gear-cell { position: absolute; z-index: 1; min-width: 0; min-height: 0; padding: 0; border: 0; border-radius: 0; background: transparent; cursor: pointer; transition: background .12s; }
+.map-area.is-calibrating .gear-cell:hover, .map-area.is-calibrating .gear-cell:focus-visible { outline: 0; background: #12313b66; }
+.gear-cell.is-active { background: #22a9d433; }
 .map-guide-line { position: absolute; z-index: 2; display: block; background: #22a9d4cc; box-shadow: 0 0 4px #22a9d466; pointer-events: none; transition: left .08s linear, top .08s linear; }
 .map-guide-x { top: 0; bottom: 0; width: 1px; }
 .map-guide-y { right: 0; left: 0; height: 1px; }

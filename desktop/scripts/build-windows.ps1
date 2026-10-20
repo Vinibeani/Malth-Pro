@@ -27,7 +27,7 @@ if ($pnpmPath) {
 }
 if ($LASTEXITCODE -ne 0) { throw 'A geração do instalador falhou.' }
 
-$installer = Get-ChildItem (Join-Path $PSScriptRoot '..\..\dist\windows') -Filter '*Setup*.exe' -File |
+$installer = Get-ChildItem (Join-Path $PSScriptRoot '..\..\dist\windows') -Filter "Malth Pro v$((Get-Content package.json -Raw | ConvertFrom-Json).version).exe" -File |
   Sort-Object LastWriteTime -Descending |
   Select-Object -First 1
 if (-not $installer) { throw 'O instalador não foi encontrado na saída da compilação.' }

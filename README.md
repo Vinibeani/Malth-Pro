@@ -3,15 +3,16 @@
 Aplicativo para Windows e firmware para Arduino Leonardo, desenvolvidos para
 configurar um volante com Force Feedback, pedais e câmbio.
 
-Projeto pessoal, mantido neste repositório para backup e controle de versões.
+Projeto pessoal, mantido neste repositório privado para backup e controle de versões.
 
 ![Interface do Malth Pro](docs/images/malth-pro-principal.png)
 
 *Tela principal da versão 1.2.5, capturada sem conexão com o Arduino.*
 
-**Versão atual: 1.2.5.** Ângulo máximo de 1080° e visualização dos 16 botões
+**Versão atual: 1.2.6.** Ângulo máximo de 1080° e visualização dos 16 botões
 da matriz pelo seletor da tela Câmbio. Use o firmware Leonardo 0.1.2.
-Veja as [notas e o roteiro de bancada](docs/UPDATE_1.2.5.md).
+Correção do mapa do câmbio: [notas da versão 1.2.6](docs/UPDATE_1.2.6.md).
+Veja também o [roteiro de bancada](docs/UPDATE_1.2.5.md).
 
 ![Matriz de 16 botões](docs/images/malth-pro-matriz.png)
 
@@ -88,7 +89,7 @@ Na primeira execução, o script precisa de internet para baixar o Arduino CLI e
 as ferramentas de compilação. O arquivo gerado será:
 
 ```text
-firmware/releases/MalthPro-v0.1.2.hex
+firmware/releases/Malth Pro-v0.1.2.hex
 ```
 
 ### 2. Identificar a porta do Leonardo
@@ -108,7 +109,7 @@ O script solicita a entrada no bootloader Caterina e faz a gravação pelo USB.
 A porta pode mudar temporariamente durante esse processo.
 
 Se utilizar outro gravador, selecione **Arduino Leonardo** e o arquivo
-`MalthPro-v0.1.2.hex`. **Não use o arquivo `with_bootloader` para gravação USB.**
+`Malth Pro-v0.1.2.hex`. **Não use o arquivo `with_bootloader` para gravação USB.**
 
 Se a gravação falhar, confira a porta COM e se algum programa ainda está usando
 o Arduino. Mais detalhes: [firmware/README.md](firmware/README.md).

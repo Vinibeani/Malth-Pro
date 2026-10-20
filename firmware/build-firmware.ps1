@@ -48,7 +48,7 @@ $compileInfo.CreateNoWindow = $true
 $compileProcess = [System.Diagnostics.Process]::Start($compileInfo)
 $compileProcess.WaitForExit()
 if ($compileProcess.ExitCode -ne 0) { throw 'A compilacao do Leonardo falhou.' }
-$target = Join-Path $release 'MalthPro-Leonardo-v0.1.2.hex'
+$target = Join-Path $release 'Malth Pro-v0.1.2.hex'
 Copy-Item -LiteralPath (Join-Path $release 'MalthProLeonardo.ino.hex') -Destination $target -Force
 Get-FileHash -LiteralPath $target -Algorithm SHA256
 Write-Host "Firmware compilado: $target"

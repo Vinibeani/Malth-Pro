@@ -2,7 +2,7 @@ param([Parameter(Mandatory = $true)][ValidatePattern('^COM[0-9]+$')][string]$Por
 $ErrorActionPreference = 'Stop'
 $cli = Join-Path $PSScriptRoot 'tooling/cli/arduino-cli.exe'
 $config = Join-Path $PSScriptRoot 'tooling/arduino-cli.yaml'
-$image = Join-Path $PSScriptRoot 'releases/MalthPro-Leonardo-v0.1.2.hex'
+$image = Join-Path $PSScriptRoot 'releases/Malth Pro-v0.1.2.hex'
 if (-not (Test-Path -LiteralPath $cli) -or -not (Test-Path -LiteralPath $image)) {
   throw 'Execute build-firmware.ps1 primeiro para preparar as ferramentas e o HEX.'
 }

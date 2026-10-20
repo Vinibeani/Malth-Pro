@@ -46,8 +46,8 @@
 
 ## Instalacao
 
-1. Fechar a versao anterior e instalar `Malth Pro 1.2.5.exe`.
-2. Gravar `firmware/releases/MalthPro-v0.1.2.hex` no Leonardo pelo
+1. Fechar a versao anterior e instalar `Malth Pro Setup 1.2.5.exe`.
+2. Gravar `firmware/releases/Malth Pro-v0.1.2.hex` no Leonardo pelo
    procedimento documentado no README, mantendo a potencia do motor desligada.
 3. Abrir o aplicativo, conectar o Leonardo e salvar o perfil desejado.
 4. Abrir Cambio, selecionar Botoes no campo Modo e pressionar os botoes fisicos.

@@ -10,7 +10,7 @@ a posicao ao conectar define o centro inicial. Deixe o volante reto ao conectar.
 
 ## Arquivos para usar
 
-- `releases/MalthPro-Leonardo-v0.1.2.hex`: imagem para carregar pelo bootloader
+- `releases/Malth Pro-v0.1.2.hex`: imagem para carregar pelo bootloader
   Caterina do Leonardo, sem incluir ou substituir o bootloader.
 - `Leonardo/MalthProLeonardo/`: codigo Arduino completo (`.ino`, `.cpp`, `.h`).
 - `libraries/JoystickFFB/`: biblioteca USB/HID com alteracoes locais e licenca.

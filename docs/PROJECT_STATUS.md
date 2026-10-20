@@ -4,7 +4,7 @@ Atualizado em 20/10/2026.
 
 ## Versoes
 
-- Aplicativo Windows: 1.2.5, com janela 1080 x 620.
+- Aplicativo Windows: 1.2.6, com janela 1080 x 620.
 - Firmware de bancada: Leonardo 0.1.2, protocolo serial 2.
 - Interface localizada em `malth-control/`.
 
