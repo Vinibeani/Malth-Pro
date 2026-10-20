@@ -9,6 +9,10 @@ Projeto pessoal, mantido neste repositório privado para backup e controle de ve
 
 *Tela principal da versão 1.2.3, capturada sem conexão com o Arduino.*
 
+**Versão atual: 1.2.4.** Corrige a inversão da imagem do volante e a sincronização
+da centralização após alterar CPR ou inversão. O firmware permanece em 0.1.0.
+Veja as [notas e o roteiro de bancada](docs/UPDATE_1.2.4.md).
+
 ## Recursos
 
 - Leitura do volante pelo encoder e ajuste de ângulo de 30° a 2160°.

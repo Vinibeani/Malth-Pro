@@ -25,3 +25,7 @@
 Thumbs.db
 .vscode/
 .idea/
+
+# Arquivos locais da analise de arquitetura
+/graphify-out/.*
+/graphify-out/cache/

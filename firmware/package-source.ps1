@@ -11,7 +11,9 @@ Copy-Item -LiteralPath (Join-Path $repoRoot 'malth-control') -Destination $packa
 $docsStage = Join-Path $packageRoot 'docs'
 New-Item -ItemType Directory -Force $docsStage | Out-Null
 Copy-Item -LiteralPath (Join-Path $repoRoot 'docs/images') -Destination $docsStage -Recurse -Force
-Copy-Item -LiteralPath (Join-Path $repoRoot 'docs/PROJECT_STATUS.md') -Destination $docsStage -Force
+foreach ($name in @('PROJECT_STATUS.md','ARCHITECTURE_TRACE.md','UPDATE_1.2.4.md')) {
+  Copy-Item -LiteralPath (Join-Path $repoRoot "docs/$name") -Destination $docsStage -Force
+}
 $desktopStage = Join-Path $packageRoot 'desktop'
 New-Item -ItemType Directory -Force $desktopStage | Out-Null
 foreach ($name in @('main.cjs','preload.cjs','device-link.cjs','motor-session.cjs','device-protocol.cjs','package.json','pnpm-lock.yaml','pnpm-workspace.yaml','README.md','assets','scripts','tests')) {
@@ -40,6 +42,7 @@ Copy-Item -LiteralPath (Join-Path $core 'variants/leonardo') -Destination (Join-
 Copy-Item -LiteralPath (Join-Path $core 'boards.txt'),(Join-Path $core 'platform.txt') -Destination $coreStage -Force
 # Empacotar caminhos relativos, incluindo os arquivos .gitignore.
 $zipPath = Join-Path $repoRoot "dist/packages/MalthPro-CodigoFonte-$appVersion-GitHub.zip"
+Add-Type -AssemblyName System.IO.Compression
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 $zipStream = [IO.File]::Open($zipPath, [IO.FileMode]::Create, [IO.FileAccess]::Write, [IO.FileShare]::None)
 $archive = New-Object IO.Compression.ZipArchive($zipStream, [IO.Compression.ZipArchiveMode]::Create)

@@ -1,10 +1,10 @@
 # Estado do Malth Pro
 
-Atualizado em 17/10/2026.
+Atualizado em 20/10/2026.
 
 ## Versoes
 
-- Aplicativo Windows: 1.2.3, com janela 1080 x 620.
+- Aplicativo Windows: 1.2.4, com janela 1080 x 620.
 - Firmware de bancada: Leonardo 0.1.0, protocolo serial 2.
 - Interface localizada em `malth-control/`.
 
@@ -22,6 +22,12 @@ Atualizado em 17/10/2026.
   interrupcao ate uma nova centralizacao.
 - Reconexao limitada ao dispositivo escolhido e identificado anteriormente.
 - Limite de bancada de 25%, watchdogs e desarme por perda de comunicacao.
+- A imagem usa a direcao ja invertida pelo firmware, sem inverter novamente.
+- Alterar CPR ou inversao invalida o centro tambem na sessao do aplicativo;
+  a centralizacao e confirmada antes de retomar a forca. Esc continua impedindo
+  a retomada automatica ate uma centralizacao solicitada pelo usuario.
+- O envio usa uma copia do perfil; falhas de confirmacao invalidam o estado
+  local de centralizacao antes de uma nova tentativa.
 
 ## Hardware
 
@@ -34,8 +40,9 @@ O indice Z nao esta ligado. A matriz de botoes 4x4 permanece prevista no firmwar
 O usuario confirmou conexao com o Leonardo e leitura dos pedais/cambio.
 Testes anteriores de comunicacao, interface e calculos em emulacao AVR foram
 realizados. A resposta fisica do motor, sentido/ganho, latencia e estabilidade
-nos jogos ainda aguardam validacao. As alteracoes de organizacao dos fontes
-nao foram submetidas a uma nova rodada de testes automatizados.
+nos jogos ainda aguardam validacao. As correcoes da versao 1.2.4 foram feitas
+por leitura do codigo; nao foi executada uma nova rodada de testes automatizados.
+O roteiro de bancada esta em `docs/UPDATE_1.2.4.md`.
 
 ## Organizacao para backup
 

@@ -9,6 +9,7 @@ class MotorSession {
     this.jobs = 0;
     this.centered = false;
     this.profileApplied = false;
+    this.appliedEncoderConfig = null;
     this.forceRequested = true;
     this.intent = 0;
     this.pendingCenters = 0;
@@ -32,10 +33,31 @@ class MotorSession {
   }
 
   sendProfile(profile, persist = false) {
-    encodeProfile(profile); // Rejeitar um perfil invalido antes de alterar o motor.
+    // Capturar o perfil ao entrar na fila: os valores enviados e comparados
+    // devem ser os mesmos, mesmo se o chamador editar seu objeto depois.
+    const snapshot = JSON.parse(JSON.stringify(profile));
+    const registers = encodeProfile(snapshot); // Validar antes de alterar o motor.
+    const encoderConfig = { cpr: registers[0], invert: registers[2] };
     return this.enqueue(async () => {
       this.profileApplied = false;
-      const result = await this.link.sendProfile(profile, persist);
+      const encoderChanged = this.appliedEncoderConfig && (
+        this.appliedEncoderConfig.cpr !== encoderConfig.cpr ||
+        this.appliedEncoderConfig.invert !== encoderConfig.invert
+      );
+      let result;
+      try {
+        result = await this.link.sendProfile(snapshot, persist);
+      } catch (error) {
+        // COMMIT pode ter sido aplicado antes de perdermos seu ACK ou o SAVE.
+        // Sem confirmacao, nao reutilizar uma centralizacao possivelmente antiga.
+        this.centered = false;
+        this.appliedEncoderConfig = null;
+        throw error;
+      }
+      // O COMMIT do protocolo 2 invalida o centro quando CPR ou INVERT mudam.
+      // Espelhar essa regra antes de qualquer tentativa de retomar a forca.
+      if (encoderChanged) this.centered = false;
+      this.appliedEncoderConfig = encoderConfig;
       this.profileApplied = true;
       if (this.forceRequested && !this.centered && this.pendingCenters === 0) {
         await this.link.command('CENTER');

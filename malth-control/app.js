@@ -12,6 +12,7 @@
   let nativeStateTime = 0;
   let latestShifterPosition = null;
   let latestSteeringAxis = null;
+  let latestSteeringFromFirmware = false;
   let steeringCenterAxis = 0;
   let sequentialGear = 0;
   let sequentialShiftDirection = 0;
@@ -416,7 +417,9 @@
     const centeredAxis = Math.max(-1, Math.min(1, axis)) - steeringCenterAxis;
     const availableRange = centeredAxis >= 0 ? 1 - steeringCenterAxis : steeringCenterAxis + 1;
     const normalized = availableRange > 0 ? Math.max(-1, Math.min(1, centeredAxis / availableRange)) : 0;
-    const direction = activeProfile.settings.invertSteeringCfg ? -1 : 1;
+    // A telemetria nativa ja inclui INVERT aplicado pelo firmware.
+    // Somente a previa de um controle generico precisa desta transformacao.
+    const direction = !latestSteeringFromFirmware && activeProfile.settings.invertSteeringCfg ? -1 : 1;
     const angle = Math.round(normalized * Number(activeProfile.settings.steeringAngleCfg) / 2 * direction);
     wheel.style.transform = `rotate(${angle}deg)`;
     readout.textContent = `${angle}°`;
@@ -448,6 +451,7 @@
 
     const steeringAxis = live ? live.steering / 32767 : gamepad ? Number(gamepad.axes[0]) : NaN;
     latestSteeringAxis = Number.isFinite(steeringAxis) ? steeringAxis : null;
+    latestSteeringFromFirmware = Boolean(live);
     renderSteeringWheel();
 
     $$('[data-pedal-meter]').forEach((meter) => {
