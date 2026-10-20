@@ -1,7 +1,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const assert = require('node:assert/strict');
-const file = path.resolve(__dirname, '../releases/MalthPro-Leonardo-v0.1.0.hex');
+const file = path.resolve(__dirname, '../releases/MalthPro-Leonardo-v0.1.2.hex');
 let base = 0, end = false, bytes = 0, highest = 0;
 for (const line of fs.readFileSync(file, 'utf8').trim().split(/\r?\n/)) {
   assert(!end, 'Dados depois do EOF'); assert(/^:[\da-f]+$/i.test(line));

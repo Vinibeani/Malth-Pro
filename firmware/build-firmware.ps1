@@ -28,12 +28,27 @@ if (-not $hasCore) {
   if ($LASTEXITCODE -ne 0) { throw 'Falha ao obter o compilador AVR.' }
 }
 $release = Join-Path $firmwareRoot 'releases'
-& $cli compile --fqbn arduino:avr:leonardo --build-property 'build.usb_product="Malth Pro"' `
-  --libraries (Join-Path $firmwareRoot 'libraries') --config-file $configPath `
-  --build-path (Join-Path $firmwareRoot 'build/leonardo') --output-dir $release `
-  (Join-Path $firmwareRoot 'Leonardo/MalthProLeonardo')
-if ($LASTEXITCODE -ne 0) { throw 'A compilacao do Leonardo falhou.' }
-$target = Join-Path $release 'MalthPro-Leonardo-v0.1.0.hex'
+# Preservar as aspas do nome USB tambem no Windows PowerShell 5.1.
+# ProcessStartInfo evita que a passagem de argumentos do shell as remova.
+$compileArguments = @('compile','--fqbn','arduino:avr:leonardo',
+  '--build-property','build.usb_product="Malth Pro"',
+  '--libraries',(Join-Path $firmwareRoot 'libraries'),'--config-file',$configPath,
+  '--build-path',(Join-Path $firmwareRoot 'build/leonardo'),'--output-dir',$release,
+  (Join-Path $firmwareRoot 'Leonardo/MalthProLeonardo'))
+$nativeArguments = foreach ($argument in $compileArguments) {
+  $escaped = [Regex]::Replace([string]$argument, '(\\*)"', '$1$1\"')
+  $escaped = [Regex]::Replace($escaped, '(\\+)$', '$1$1')
+  '"' + $escaped + '"'
+}
+$compileInfo = New-Object System.Diagnostics.ProcessStartInfo
+$compileInfo.FileName = $cli
+$compileInfo.Arguments = $nativeArguments -join ' '
+$compileInfo.UseShellExecute = $false
+$compileInfo.CreateNoWindow = $true
+$compileProcess = [System.Diagnostics.Process]::Start($compileInfo)
+$compileProcess.WaitForExit()
+if ($compileProcess.ExitCode -ne 0) { throw 'A compilacao do Leonardo falhou.' }
+$target = Join-Path $release 'MalthPro-Leonardo-v0.1.2.hex'
 Copy-Item -LiteralPath (Join-Path $release 'MalthProLeonardo.ino.hex') -Destination $target -Force
 Get-FileHash -LiteralPath $target -Algorithm SHA256
 Write-Host "Firmware compilado: $target"

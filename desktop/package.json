@@ -1,6 +1,6 @@
 {
   "name": "malth-pro-desktop",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "private": true,
   "description": "Malth Pro para Windows",
   "productName": "Malth Pro",
@@ -36,8 +36,8 @@
     ],
     "extraResources": [
       {
-        "from": "../firmware/releases/MalthPro-Leonardo-v0.1.0.hex",
-        "to": "firmware/MalthPro-Leonardo-v0.1.0.hex"
+        "from": "../firmware/releases/MalthPro-Leonardo-v0.1.2.hex",
+        "to": "firmware/MalthPro-Leonardo-v0.1.2.hex"
       },
       {
         "from": "../firmware/README.md",

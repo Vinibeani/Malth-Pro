@@ -37,7 +37,7 @@ app.whenReady().then(async () => {
       wheel: document.querySelector('.wheel-illustration').style.transform,
     })`);
     assert.equal(before.connected, 'Conectado'); assert.equal(before.gear, '2'); assert.equal(before.meter, '25');
-    assert.equal(before.min, '30'); assert.equal(before.max, '2160'); assert.equal(before.manualForceButton, false);
+    assert.equal(before.min, '30'); assert.equal(before.max, '1080'); assert.equal(before.manualForceButton, false);
     assert(before.wheel.includes('135deg'));
     const optionalState = () => win.webContents.executeJavaScript(`['clutch', 'handbrake'].map((pedal) => ({
       fill: document.querySelector('[data-pedal-meter="' + pedal + '"] span').style.width,
@@ -90,7 +90,7 @@ app.whenReady().then(async () => {
     await win.webContents.executeJavaScript(`document.querySelector('#saveProfile').click();`);
     await new Promise((resolve) => setTimeout(resolve, 80));
     assert(Math.abs(profiles.at(-1).pedalCalibration.accel.min - 258 / 1023 * 100) < 0.1);
-    assert.equal(await win.webContents.executeJavaScript(`document.querySelector('#saveState').textContent`), 'Gravado no Arduino');
+    assert.equal(await win.webContents.executeJavaScript(`document.querySelector('#saveState').textContent`), 'Salvo');
     assert.equal(encodeProfile(profiles.at(-1))[6], 3);
     await win.webContents.executeJavaScript(`document.querySelector('#centerButton').click(); document.dispatchEvent(new KeyboardEvent('keydown', {key:'Escape'}));`);
     await new Promise((resolve) => setTimeout(resolve, 80));

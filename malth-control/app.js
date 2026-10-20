@@ -18,6 +18,9 @@
   let sequentialShiftDirection = 0;
   let shifterCalibrationMode = false;
   let capturedGears = new Set();
+  const matrixKeys = [];
+  let lastMatrixReading;
+  let matrixButtonMask = null;
   const calibrationDefaults = () => ({
     accel: { min: 0, max: 100 },
     brake: { min: 0, max: 100 },
@@ -115,6 +118,7 @@
     frictionFilterCfg: 20,
     inertiaFilterCfg: 20,
     shifterModeCfg: 1,
+    showMatrixCfg: false,
     yHighCfg: 768,
     yLowCfg: 256,
     xHighCfg: 768,
@@ -160,6 +164,12 @@
     base,
   });
 
+  function clampSteeringAngle(settings) {
+    const angle = Number(settings.steeringAngleCfg);
+    settings.steeringAngleCfg = Number.isFinite(angle)
+      ? Math.max(30, Math.min(1080, Math.round(angle / 10) * 10)) : defaults.steeringAngleCfg;
+  }
+
   function readStoredProfiles() {
     const current = localStorage.getItem(STORAGE_KEY);
     if (current !== null) return JSON.parse(current);
@@ -192,6 +202,7 @@
           Object.keys(settings).forEach((key) => {
             if (Object.hasOwn(profile.settings, key)) settings[key] = profile.settings[key];
           });
+          clampSteeringAngle(settings);
           const calibration = calibrationDefaults();
           Object.keys(calibration).forEach((pedal) => {
             const saved = profile.pedalCalibration?.[pedal];
@@ -332,6 +343,16 @@
     const yReadout = $('#shifterYReadout');
     const gate = $('#shifterGate');
     const settings = activeProfile.settings;
+    const showButtons = settings.showMatrixCfg === true;
+    $('.shifter-layout').classList.toggle('is-buttons', showButtons);
+    $('[data-setting="shifterModeCfg"]').value = showButtons ? 'buttons' : String(settings.shifterModeCfg);
+    if (showButtons) {
+      shifterCalibrationMode = false;
+      const count = matrixKeys.filter((key) => key.classList.contains('is-pressed')).length;
+      $('#currentGear').textContent = matrixButtonMask === null ? '—' : String(count);
+      $('#shifterModeHint').textContent = 'Botões pressionados · matriz 4×4';
+      return;
+    }
     const isHShifter = String(settings.shifterModeCfg) === '1';
     const isSequential = !isHShifter;
     if (isSequential && shifterCalibrationMode) shifterCalibrationMode = false;
@@ -342,8 +363,8 @@
     $('#shifterModeHint').textContent = isSequential
       ? 'Eixo Y · movimento frente / trás'
       : 'Movimento X/Y · configure cada marcha';
-    $('#mapYTopLabel').textContent = isSequential ? 'Frente' : 'Y máximo';
-    $('#mapYBottomLabel').textContent = isSequential ? 'Trás' : 'Y mínimo';
+    $('#mapYTopLabel').textContent = isSequential ? 'Frente' : 'Y max';
+    $('#mapYBottomLabel').textContent = isSequential ? 'Trás' : 'Y min';
     gate.setAttribute('aria-label', isSequential ? 'Eixo Y do câmbio sequencial' : 'Mapa X/Y do câmbio');
     const hasLivePosition = latestShifterPosition && Number.isFinite(latestShifterPosition.y) &&
       (isSequential || Number.isFinite(latestShifterPosition.x));
@@ -425,12 +446,53 @@
     readout.textContent = `${angle}°`;
   }
 
+  function createMatrixButtons() {
+    const grid = $('#matrixGrid');
+    for (let index = 0; index < 16; ++index) {
+      const key = document.createElement('div');
+      key.className = 'matrix-key is-unavailable';
+      key.dataset.matrixButton = String(index + 1);
+      key.setAttribute('role', 'img');
+      key.setAttribute('aria-label', `Botão ${index + 1}: aguardando leitura`);
+      key.innerHTML = `<strong>${index + 1}</strong>`;
+      grid.append(key);
+      matrixKeys.push(key);
+    }
+  }
+
+  function renderMatrixButtons(live, gamepad) {
+    let mask = null;
+    if (live && Number.isInteger(live.buttons)) mask = live.buttons;
+    else if (gamepad && /malth/i.test(gamepad.id) && gamepad.buttons.length >= 16) {
+      mask = Array.from(gamepad.buttons).slice(0, 16).reduce((bits, button, index) =>
+        bits | ((button.pressed || button.value > 0.5) ? 1 << index : 0), 0);
+    }
+    const available = mask !== null;
+    matrixButtonMask = mask;
+    const label = available ? 'Conectado' : live ? 'Atualize o firmware do Leonardo' :
+      nativeDeviceConnected ? 'Aguardando leitura' : 'Aguardando o volante';
+    const reading = `${mask}:${label}`;
+    if (reading === lastMatrixReading) return;
+    lastMatrixReading = reading;
+    matrixKeys.forEach((key, index) => {
+      const pressed = available && Boolean(mask & (1 << index));
+      const state = available ? pressed ? 'Pressionado' : 'Solto' : '—';
+      key.classList.toggle('is-pressed', pressed);
+      key.classList.toggle('is-unavailable', !available);
+      key.setAttribute('aria-label', `Botão ${index + 1}: ${available ? state.toLowerCase() : 'aguardando leitura'}`);
+    });
+    if (activeProfile.settings.showMatrixCfg === true) renderShifterPosition();
+    $('#matrixConnection').classList.toggle('is-connected', available);
+    $('#matrixConnectionLabel').textContent = label;
+  }
+
   function updatePedalMeters() {
     const live = nativeDeviceConnected && performance.now() - nativeStateTime < 1500 ? nativeState : null;
     let gamepad = null;
     if (typeof navigator.getGamepads === 'function') {
       try {
-        gamepad = Array.from(navigator.getGamepads()).find((candidate) => candidate?.connected) || null;
+        const connected = Array.from(navigator.getGamepads()).filter((candidate) => candidate?.connected);
+        gamepad = connected.find((candidate) => /malth/i.test(candidate.id)) || connected[0] || null;
       } catch {
         gamepad = null;
       }
@@ -501,6 +563,8 @@
     }
     renderShifterPosition();
 
+    renderMatrixButtons(live, gamepad);
+
     const status = $('#connectionStatus');
     const connected = Boolean(gamepad) || nativeDeviceConnected;
     const label = connected ? 'Conectado' :
@@ -524,11 +588,16 @@
       selector.append(option);
     });
     selector.value = activeProfile.id;
+    selector.title = activeProfile.name;
     const profileInfo = $('#infoProfile');
     if (profileInfo) profileInfo.textContent = activeProfile.name;
   }
 
   function renderSettings() {
+    // O projeto usa a BTS7960 e encoder A/B, sem indice Z.
+    activeProfile.settings.hbridgeCfg = 'BTS7960';
+    activeProfile.settings.useIndexCfg = false;
+    clampSteeringAngle(activeProfile.settings);
     $('#steeringRange').value = activeProfile.settings.steeringAngleCfg;
     updateRangeFill($('#steeringRange'));
 
@@ -557,17 +626,24 @@
     });
     $('#steeringAngleValue').textContent = `${activeProfile.settings.steeringAngleCfg}°`;
     $('#desktopEffectStatus').textContent = effectTypeLabels[activeProfile.settings.effectTypeCfg] || 'Desligado';
+    renderDriveMode();
     drawBrakeCurve();
     renderShifterPosition();
     $('#deleteProfile').disabled = Boolean(activeProfile.base);
     renderProfiles();
   }
 
+  function renderDriveMode() {
+    $('#driveModeNote').textContent = activeProfile.settings.driveModeCfg === '1PWM + 1DIR'
+      ? 'D8: habilitação · D9: PWM · D10: direção. Requer firmware 0.1.2.'
+      : 'D8: habilitação comum · D9/D10: PWM. Os modos com 2DIR exigem outra ligação.';
+  }
+
   function persistProfiles() {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(profiles));
       dirty = false;
-      $('#saveState').textContent = 'Salvo localmente';
+      $('#saveState').textContent = '';
       $('#saveState').classList.remove('is-dirty');
       return true;
     } catch {
@@ -597,7 +673,7 @@
       settings: clone(activeProfile.settings),
       pedalCalibration: clone(activeProfile.pedalCalibration),
     }, { persist });
-    if (result.applied) $('#saveState').textContent = result.persisted ? 'Gravado no Arduino' : 'Aplicado ao Arduino';
+    if (result.applied) $('#saveState').textContent = result.persisted ? 'Salvo' : 'Aplicado ao Arduino';
     return result;
     } catch (error) {
       $('#saveState').textContent = 'Perfil local · não aplicado';
@@ -623,7 +699,8 @@
     if (message.type !== 'state' || !Array.isArray(message.raw) || message.raw.length !== 6 ||
         message.raw.some((value) => !Number.isInteger(value) || value < 0 || value > 1023) ||
         !Number.isInteger(message.steering) || Math.abs(message.steering) > 32767 ||
-        !Number.isInteger(message.gear) || message.gear < 0 || message.gear > 8) return;
+        !Number.isInteger(message.gear) || message.gear < 0 || message.gear > 8 ||
+        (message.buttons !== undefined && (!Number.isInteger(message.buttons) || message.buttons < 0 || message.buttons > 65535))) return;
     nativeState = message; nativeStateTime = performance.now();
     steeringCenterAxis = 0;
     renderMotorState();
@@ -633,14 +710,14 @@
     if (!validCalibration()) return false;
     const current = profiles.find((profile) => profile.id === activeProfile.id);
     if (current) {
+      current.name = activeProfile.name;
       current.settings = clone(activeProfile.settings);
       current.pedalCalibration = clone(activeProfile.pedalCalibration);
     }
     if (persistProfiles()) {
       const result = await sendActiveProfileToDevice(true);
       if (nativeDeviceConnected && !result?.applied) { renderSettings(); return false; }
-      showToast(result?.persisted ? `Perfil “${activeProfile.name}” gravado no Arduino.` :
-        `Perfil “${activeProfile.name}” salvo localmente${nativeDeviceConnected ? '; confira o envio ao Arduino' : ''}.`);
+      showToast('Salvo');
     }
     renderSettings();
     return !dirty;
@@ -654,7 +731,7 @@
     activeProfile = clone(profile);
     capturedGears.clear();
     dirty = false;
-    $('#saveState').textContent = 'Salvo localmente';
+    $('#saveState').textContent = '';
     $('#saveState').classList.remove('is-dirty');
     renderSettings();
     sendActiveProfileToDevice();
@@ -717,6 +794,43 @@
     showToast(`Perfil ${profile.name} criado.`);
   }
 
+  function openProfileNameDialog() {
+    const input = $('#profileNameInput');
+    input.value = activeProfile.name;
+    input.removeAttribute('aria-invalid');
+    $('#profileNameError').hidden = true;
+    $('#profileNameDialog').showModal();
+    input.focus();
+    input.select();
+  }
+
+  function saveProfileName(event) {
+    event.preventDefault();
+    const input = $('#profileNameInput');
+    const name = input.value.trim();
+    const error = $('#profileNameError');
+    const fail = (message) => {
+      error.textContent = message;
+      error.hidden = false;
+      input.setAttribute('aria-invalid', 'true');
+      input.focus();
+    };
+    if (!name || name.length > 48) {
+      fail('Digite um nome de 1 a 48 caracteres.');
+      return;
+    }
+    // Renomear e uma operacao local. Preservar configuracoes ainda nao salvas,
+    // o estado dirty e a sessao do motor, sem reenviar o perfil ao Arduino.
+    const renamed = profiles.map((profile) => profile.id === activeProfile.id ? { ...profile, name } : profile);
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(renamed)); }
+    catch { fail('Não foi possível salvar o nome neste computador.'); return; }
+    profiles = renamed;
+    activeProfile.name = name;
+    renderProfiles();
+    $('#profileNameDialog').close();
+    showToast('Salvo');
+  }
+
   function deleteProfile() {
     if (activeProfile.base) return;
     profiles = profiles.filter((profile) => profile.id !== activeProfile.id);
@@ -763,6 +877,7 @@
         Object.keys(settings).forEach((key) => {
           if (Object.hasOwn(candidate.settings, key)) settings[key] = candidate.settings[key];
         });
+        clampSteeringAngle(settings);
         const calibration = calibrationDefaults();
         Object.keys(calibration).forEach((pedal) => {
           const saved = candidate.pedalCalibration?.[pedal];
@@ -793,6 +908,8 @@
 
   renderGainControls();
   renderBrakeLinearity();
+  createMatrixButtons();
+  renderMatrixButtons(null, null);
   renderSettings();
   requestAnimationFrame(updatePedalMeters);
   $$('.tab').forEach((tab) => tab.addEventListener('click', () => activateTab(tab.dataset.tab)));
@@ -828,8 +945,25 @@
     if (profile) switchProfile(profile);
   });
 
+  function selectShifterView(value) {
+    if (!['0', '1', 'buttons'].includes(value)) return;
+    const showButtons = value === 'buttons';
+    const changed = (activeProfile.settings.showMatrixCfg === true) !== showButtons ||
+      (!showButtons && String(activeProfile.settings.shifterModeCfg) !== value);
+    activeProfile.settings.showMatrixCfg = showButtons;
+    // Botoes e uma visualizacao da matriz ja habilitada. O modo fisico do
+    // cambio continua 0/1 para preservar seu funcionamento e o protocolo.
+    if (!showButtons) activeProfile.settings.shifterModeCfg = Number(value);
+    if (changed) markDirty();
+    renderShifterPosition();
+  }
+
   document.addEventListener('input', (event) => {
     const input = event.target;
+    if (input.matches('[data-setting="shifterModeCfg"]')) {
+      selectShifterView(input.value);
+      return;
+    }
     if (input.matches('[data-setting]')) {
       const value = input.type === 'checkbox' ? input.checked :
         (input.type === 'number' || input.type === 'range') ? (input.value === '' ? '' : Number(input.value)) : input.value;
@@ -841,6 +975,7 @@
       });
       if (input.id === 'steeringRange') $('#steeringAngleValue').textContent = `${value}°`;
       if (input.dataset.setting === 'effectTypeCfg') $('#desktopEffectStatus').textContent = effectTypeLabels[value] || 'Desligado';
+      if (input.dataset.setting === 'driveModeCfg') renderDriveMode();
       if (input.dataset.setting.startsWith('brakeLin')) drawBrakeCurve();
       if (['shifterModeCfg', 'yHighCfg', 'yLowCfg', 'xHighCfg', 'xMidCfg', 'xLowCfg'].includes(input.dataset.setting)) {
         renderShifterPosition();
@@ -857,12 +992,14 @@
   document.addEventListener('change', (event) => {
     const input = event.target;
     if (!input.matches('[data-setting="shifterModeCfg"]')) return;
-    activeProfile.settings.shifterModeCfg = input.value;
-    markDirty();
-    renderShifterPosition();
+    selectShifterView(input.value);
   });
 
   $('#newProfile').addEventListener('click', createProfile);
+  $('#renameProfile').addEventListener('click', openProfileNameDialog);
+  $('#profileNameForm').addEventListener('submit', saveProfileName);
+  $('#closeProfileName').addEventListener('click', () => $('#profileNameDialog').close());
+  $('#cancelProfileName').addEventListener('click', () => $('#profileNameDialog').close());
   $('#deleteProfile').addEventListener('click', deleteProfile);
   $('#saveProfile').addEventListener('click', saveCurrentProfile);
   $('#exportProfile').addEventListener('click', exportProfile);

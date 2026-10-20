@@ -7,18 +7,23 @@ Projeto pessoal, mantido neste repositório privado para backup e controle de ve
 
 ![Interface do Malth Pro](docs/images/malth-pro-principal.png)
 
-*Tela principal da versão 1.2.3, capturada sem conexão com o Arduino.*
+*Tela principal da versão 1.2.5, capturada sem conexão com o Arduino.*
 
-**Versão atual: 1.2.4.** Corrige a inversão da imagem do volante e a sincronização
-da centralização após alterar CPR ou inversão. O firmware permanece em 0.1.0.
-Veja as [notas e o roteiro de bancada](docs/UPDATE_1.2.4.md).
+**Versão atual: 1.2.5.** Ângulo máximo de 1080° e visualização dos 16 botões
+da matriz pelo seletor da tela Câmbio. Use o firmware Leonardo 0.1.2.
+Veja as [notas e o roteiro de bancada](docs/UPDATE_1.2.5.md).
+
+![Matriz de 16 botões](docs/images/malth-pro-matriz.png)
+
+*Câmbio → Modo → Botões: os indicadores acendem em azul quando os botões físicos são pressionados.*
 
 ## Recursos
 
-- Leitura do volante pelo encoder e ajuste de ângulo de 30° a 2160°.
+- Leitura do volante pelo encoder e ajuste de ângulo de 30° a 1080°.
 - Calibração de mínimo e máximo dos quatro pedais.
 - Linearidade do freio em dez pontos.
 - Câmbio H-Shifter ou sequencial, com visualização ao vivo.
+- Matriz de 16 botões pelo seletor do câmbio, com indicação dos pressionamentos.
 - Configuração dos efeitos de Force Feedback e mola para jogos sem FFB.
 - Perfis de configuração e gravação dos ajustes no Arduino.
 
@@ -40,8 +45,11 @@ Veja as [notas e o roteiro de bancada](docs/UPDATE_1.2.4.md).
 | BTS7960 R_EN + L_EN, juntos | D8 |
 | BTS7960 LPWM / RPWM | D9 / D10 |
 
-O índice Z não está ligado nesta montagem. O modo permanece **2 PWM + 1 DIR**
-na interface; nesta ligação, D8 é a habilitação comum da BTS7960.
+O encoder usa apenas A/B; a opção Índice Z foi retirada da interface.
+O modelo BTS7960 fica fixo. O seletor permite **2 PWM + 1 DIR** (padrão) e
+**1 PWM + 1 DIR**, adaptado aos mesmos fios. D8 continua sendo a habilitação
+comum nos dois modos. Os modos com 2 DIR exigem outra ligação e ficam indisponíveis.
+Veja [os modos e o roteiro de teste PWM](docs/PWM_BTS7960.md).
 
 ## Instalar o aplicativo
 
@@ -52,6 +60,13 @@ na interface; nesta ligação, D8 é a habilitação comum da BTS7960.
 Os instaladores de desenvolvimento usam um certificado local de teste.
 A confiança desse certificado vale para o PC onde ele foi configurado.
 Instruções para gerar o instalador: [desktop/README.md](desktop/README.md).
+
+## Renomear e excluir perfis
+
+No rodapé, selecione o perfil e clique no **lápis** ao lado do nome. Digite o
+novo nome e clique em **Salvar nome**. O nome fica salvo neste computador;
+renomear não altera os ajustes do volante. Para remover um perfil criado,
+selecione-o e clique no **ícone de lixeira**.
 
 ## Gravar o `.hex` no Arduino
 
@@ -73,7 +88,7 @@ Na primeira execução, o script precisa de internet para baixar o Arduino CLI e
 as ferramentas de compilação. O arquivo gerado será:
 
 ```text
-firmware/releases/MalthPro.hex
+firmware/releases/MalthPro-Leonardo-v0.1.2.hex
 ```
 
 ### 2. Identificar a porta do Leonardo
@@ -93,7 +108,7 @@ O script solicita a entrada no bootloader Caterina e faz a gravação pelo USB.
 A porta pode mudar temporariamente durante esse processo.
 
 Se utilizar outro gravador, selecione **Arduino Leonardo** e o arquivo
-`MalthPro.hex`. **Não use o arquivo `with_bootloader` para gravação USB.**
+`MalthPro-Leonardo-v0.1.2.hex`. **Não use o arquivo `with_bootloader` para gravação USB.**
 
 Se a gravação falhar, confira a porta COM e se algum programa ainda está usando
 o Arduino. Mais detalhes: [firmware/README.md](firmware/README.md).

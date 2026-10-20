@@ -39,9 +39,11 @@ static uint16_t overruns = 0;
 static uint32_t lastControl = 0, lastTelemetry = 0, lastHostPing = 0;
 static uint32_t matrixButtons = 0;
 static uint8_t debounce[16] = {}, matrixRow = 0;
+static volatile uint8_t motorMode = 0xff, motorPositive = 0, motorSettling = 0;
+static uint32_t motorStageTime = 0;
 
 // Comunicacao limitada: nenhuma linha JSON do perfil inteiro e alocada no AVR.
-static char inputLine[80], tx[160], reply[96];
+static char inputLine[80], tx[176], reply[112];
 static uint8_t inputLength = 0, txLength = 0, txOffset = 0;
 static bool droppingLine = false;
 
@@ -52,9 +54,10 @@ static bool saving = false;
 
 static void motorOff() {
   PORTB &= ~_BV(4); // D8 baixo antes de qualquer mudanca no PWM.
+  PORTB &= ~(_BV(5) | _BV(6)); // Precarregar LOW antes de devolver os pinos ao GPIO.
   TCCR1A = _BV(WGM11);
   OCR1A = OCR1B = 0;
-  PORTB &= ~(_BV(5) | _BV(6));
+  motorMode = 0xff; motorSettling = 0;
 }
 
 // Receptor PID independente do ritmo da interface. Sem calculos de torque na ISR.
@@ -79,8 +82,8 @@ static int32_t readPosition() {
 }
 
 static void configurePwm() {
-  motorOff();
   ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+    motorOff();
     TCCR1B = 0;
     TCNT1 = 0;
     ICR1 = F_CPU / (uint32_t)config.value[PWM_HZ] - 1;
@@ -101,14 +104,33 @@ static void writeMotor(int32_t force) {
   magnitude = min(magnitude, limit);
   if (!magnitude) { motorOff(); return; }
   force *= MOTOR_DIRECTION * (config.value[INVERT] ? -1 : 1);
-  // Apenas um dos canais PWM pode estar ativo por vez.
+  uint8_t mode = config.value[DRIVE_MODE];
+  bool positive = force > 0;
+  uint16_t duty = motorCompare(ICR1, magnitude);
+  if (!duty) { motorOff(); return; }
+  MotorOutput output = motorOutput(mode, positive, duty);
+  uint8_t compare = _BV(WGM11) | (output.channels & 1 ? _BV(COM1A1) : 0) |
+    (output.channels & 2 ? _BV(COM1B1) : 0) | (output.invertA ? _BV(COM1A0) : 0);
+  uint32_t now = micros();
+  uint16_t settleMicros = motorSettleMicros(config.value[PWM_HZ]);
+  // COM atua imediatamente; OCR e duplamente bufferizado. D8 permanece
+  // baixo por dois periodos completos antes de habilitar nova polaridade.
   ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
-    TCCR1A = _BV(WGM11);
-    PORTB &= ~(_BV(5) | _BV(6));
-    OCR1A = force < 0 ? (uint32_t)magnitude * ICR1 / 10000 : 0;
-    OCR1B = force > 0 ? (uint32_t)magnitude * ICR1 / 10000 : 0;
-    TCCR1A |= force < 0 ? _BV(COM1A1) : _BV(COM1B1);
-    PORTB |= _BV(4);
+    if (loopMissed >= 20 || !USBDevice.configured() || pid.devicePaused || !(pid.pidState.status & 2)) motorOff();
+    else if (motorMode != mode || motorPositive != positive) {
+      motorOff();
+      PORTB = (PORTB & ~(_BV(4) | _BV(5) | _BV(6))) | (output.digital & _BV(6));
+      OCR1A = output.a; OCR1B = output.b;
+      TCCR1A = compare;
+      motorMode = mode; motorPositive = positive;
+      motorStageTime = micros(); motorSettling = 1;
+    } else if (!motorSettling || (uint32_t)(now - motorStageTime) >= settleMicros) {
+      // Durante o assentamento os OCR ficam congelados. Depois, so muda
+      // a magnitude: nao desconectar o PWM nem limpar DIR a cada controle.
+      OCR1A = output.a; OCR1B = output.b;
+      PORTB |= _BV(4);
+      motorSettling = 0;
+    }
   }
 }
 
@@ -270,7 +292,10 @@ static void loadSavedConfig() {
     uint16_t gen, crc;
     EEPROM.get(base, staging);
     EEPROM.get(base + sizeof(Config), gen); EEPROM.get(base + sizeof(Config) + 2, crc);
-    if (crc == recordCrc(staging, gen) && validConfig(staging) &&
+    if (crc != recordCrc(staging, gen)) continue;
+    // Preservar os demais ajustes de um perfil valido da versao anterior.
+    if (staging.value[ANGLE] > 1080 && staging.value[ANGLE] <= 2160) staging.value[ANGLE] = 1080;
+    if (validConfig(staging) &&
         (!loaded || (int16_t)(gen - generation) > 0)) {
       config = staging; generation = gen; savedSlot = slot; loaded = true;
     }
@@ -303,7 +328,7 @@ static void command(char* line) {
     char* version = strtok_r(nullptr, " ", &state);
     if (!version || strcmp(version, "2")) { queueReply(F("{\"type\":\"error\",\"code\":\"PROTOCOL\"}\n")); return; }
     disarm(); serialSession = true; lastHostPing = millis();
-    queueReply(F("{\"type\":\"hello\",\"device\":\"MalthPro\",\"protocol\":2,\"firmware\":\"0.1.0\",\"registers\":65}\n")); return;
+    queueReply(F("{\"type\":\"hello\",\"device\":\"MalthPro\",\"protocol\":2,\"firmware\":\"0.1.2\",\"registers\":65,\"btsPwmDir\":1}\n")); return;
   }
   if (!serialSession) { queueReply(F("{\"type\":\"error\",\"code\":\"HELLO_REQUIRED\"}\n")); return; }
   if (!strcmp(op, "PING")) { lastHostPing = millis(); ack(op); return; }
@@ -372,8 +397,8 @@ static void serviceSerial() {
     if (reply[0]) { strncpy(tx, reply, sizeof(tx)); txLength = strlen(tx); reply[0] = 0; }
     else if (serialSession && millis() - lastTelemetry >= 32) {
       lastTelemetry = millis();
-      txLength = snprintf_P(tx, sizeof(tx), PSTR("{\"type\":\"state\",\"raw\":[%u,%u,%u,%u,%u,%u],\"steering\":%d,\"gear\":%u,\"armed\":%u,\"centered\":%u,\"overruns\":%u}\n"),
-        raw[0], raw[1], raw[2], raw[3], raw[4], raw[5], normalizedSteering, gear, armed, centered, overruns);
+      txLength = snprintf_P(tx, sizeof(tx), PSTR("{\"type\":\"state\",\"raw\":[%u,%u,%u,%u,%u,%u],\"steering\":%d,\"gear\":%u,\"armed\":%u,\"centered\":%u,\"overruns\":%u,\"buttons\":%u}\n"),
+        raw[0], raw[1], raw[2], raw[3], raw[4], raw[5], normalizedSteering, gear, armed, centered, overruns, (uint16_t)matrixButtons);
     }
   }
   if (txOffset < txLength && Serial.availableForWrite() >= 16) {

@@ -1,16 +1,16 @@
-# Firmware Malth Pro — Leonardo 0.1.0 (bancada)
+# Firmware Malth Pro — Leonardo 0.1.2 (bancada)
 
 Alvo: **Arduino Leonardo, ATmega32U4, 16 MHz / 5 V**. Este pacote tem codigo-fonte
 proprio e uma biblioteca USB aberta para comunicacao HID e Force Feedback.
-Use com **Malth Pro para Windows 1.2.2** (tambem compativel com 1.1.0/1.1.1/1.2.0/1.2.1).
-O aplicativo 1.0.5 utiliza outro protocolo. As atualizacoes da interface 1.1.1
-e 1.2.0/1.2.1/1.2.2 nao exigem atualizar o firmware.
-No aplicativo 1.2.2, a forca e habilitada automaticamente apos aplicar o perfil;
+Use com **Malth Pro para Windows 1.2.5**. O protocolo serial 2 foi mantido.
+Esta imagem inclui telemetria dos 16 botoes da matriz e limite de 1080 graus;
+grave o novo HEX para utilizar as duas alteracoes tambem no Arduino.
+No aplicativo, a forca e habilitada automaticamente apos aplicar o perfil;
 a posicao ao conectar define o centro inicial. Deixe o volante reto ao conectar.
 
 ## Arquivos para usar
 
-- `releases/MalthPro-Leonardo-v0.1.0.hex`: imagem para carregar pelo bootloader
+- `releases/MalthPro-Leonardo-v0.1.2.hex`: imagem para carregar pelo bootloader
   Caterina do Leonardo, sem incluir ou substituir o bootloader.
 - `Leonardo/MalthProLeonardo/`: codigo Arduino completo (`.ino`, `.cpp`, `.h`).
 - `libraries/JoystickFFB/`: biblioteca USB/HID com alteracoes locais e licenca.
@@ -44,7 +44,7 @@ O sinal Z do encoder nao esta conectado neste esquema.
 ## Primeiro uso
 
 1. Com a alimentacao de potencia do motor desligada, grave o HEX e instale o
-   Malth Pro 1.2.2. Mantenha o USB para testar as entradas.
+   Malth Pro 1.2.5. Mantenha o USB para testar as entradas.
 2. Clique em **VOLANTE** e escolha a porta COM do Leonardo. A conexao so e
    confirmada apos identificar o firmware Malth Pro. O aplicativo lembra a
    identidade escolhida e tenta reconectar nas proximas vezes.
@@ -73,7 +73,7 @@ O sinal Z do encoder nao esta conectado neste esquema.
    a perda das confirmacoes de vida o desarma em ate 2 segundos. O aplicativo
    deve permanecer aberto para manter o FFB habilitado nesta versao.
 
-Na versao 1.2.2, o aplicativo retoma o FFB automaticamente apos salvar uma
+O aplicativo retoma o FFB automaticamente apos salvar uma
 configuracao. Depois de Esc, essa retomada fica suspensa: use Centralizar
 para retomar explicitamente. Reconectar automaticamente na mesma sessao
 tambem respeita essa interrupcao. Reabrir o aplicativo inicia uma nova sessao.
@@ -102,9 +102,11 @@ mostrar nomes diferentes para os eixos; mapeie-os na configuracao do jogo.
 - Seis efeitos simultaneos: constante, rampa, quadrada, seno, triangular,
   dente de serra, mola, amortecimento, atrito e inercia (tipos disponiveis).
   Custom Force por amostras nao e anunciado nem implementado.
-- Angulo de 30 a 2160 graus; PWM de 4 a 20 kHz no Timer1.
+- Angulo de 30 a 1080 graus; PWM de 4 a 20 kHz no Timer1.
+- Matriz 4x4 habilitada no HID e na telemetria serial, campo `buttons` de 16 bits.
 - BTS7960 no modo 2 PWM + habilitacao comum, rotulado 2PWM + 1DIR na interface.
-  D8 e habilitacao, e nao deve ser ligado como DIR de outro driver.
+  Alternativa 1PWM + 1DIR adaptada aos mesmos fios: D9 PWM, D10 direcao e D8
+  habilitacao comum. D8 nao muda de funcao. Veja `docs/PWM_BTS7960.md` na raiz.
 - Linearidade de freio em dez pontos ajustaveis, origem fixa, com interpolacao;
   entradas do tipo Hall ou celula de carga precisam fornecer sinal analogico
   adequado a A1. Este codigo nao inclui interface digital HX711.
@@ -113,23 +115,28 @@ mostrar nomes diferentes para os eixos; mapeie-os na configuracao do jogo.
   alvo de 2 ms; envio HID sem esperar por espaco do host. Isso reduz caminhos
   que poderiam bloquear, mas nao comprova latencia fim a fim nem ausencia de
   travamentos em todos os jogos. `overruns` na telemetria conta ciclos >5 ms.
-- Motor desligado na inicializacao do firmware; o aplicativo 1.2.2 aplica o
+- Motor desligado na inicializacao do firmware; o aplicativo aplica o
   perfil, define o centro inicial e habilita a forca. Limite de bancada,
   desarme por falta de laco de controle e watchdog do microcontrolador.
 
-Os outros tres modos de ponte H e a calibracao automatica por Z **nao estao
-habilitados** para esta pinagem. Suporta apenas o Leonardo de 16 MHz desta
+Os modos com 2 DIR **nao estao habilitados** para esta pinagem fixa. O encoder
+usa A/B e a opcao Indice Z foi retirada da interface. Suporta apenas o Leonardo de 16 MHz desta
 entrega; nao grave esta imagem num Pro Micro de 8 MHz.
 
 ## Validacao e reproducao
 
 Compilado com Arduino CLI 1.5.1, Arduino AVR Boards 1.8.8, avr-gcc
 7.3.0-atmel3.6.1-arduino7. Resultado: 26572/28672 bytes de flash e 1790/2560
-bytes de variaveis globais, antes da alocacao do descritor HID e da pilha.
+bytes de variaveis globais na imagem 0.1.0, antes da alocacao do descritor HID e
+da pilha. A imagem 0.1.2 usa 27014/28672 bytes de programa e 1830/2560 bytes
+globais de SRAM, tambem antes das alocacoes dinamicas e da pilha.
 
 Foram aprovados seis testes de comunicacao no PC, 12 verificacoes da interface
 Electron em janela oculta e 46 verificacoes de
 calibracao/relatorios PID executadas como instrucoes AVR no avr8js 0.21.1.
+Esses resultados sao historicos da imagem 0.1.0. Na 0.1.2 foram executadas
+78 verificacoes de calculos PWM em instrucoes AVR e quatro testes do protocolo
+PWM no PC, todos sem falhas. As demais suites nao foram reexecutadas.
 Esses testes nao simulam USB fisico, temporizacao de interrupcoes, ADC, EEPROM,
 encoder ou BTS7960. Faltam os testes no seu Leonardo e nos jogos.
 

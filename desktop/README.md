@@ -1,5 +1,14 @@
 # Malth Pro para Windows
 
+## Atualizacao 1.2.5 — matriz e limite de angulo
+
+Angulo limitado a 1080 graus. Matriz em Cambio > Modo > Botoes, com grade 4x4
+compacta dos botoes 1..16 e destaque azul dos pressionamentos fisicos. Use o firmware
+`firmware/releases/MalthPro-Leonardo-v0.1.2.hex` para os novos modos BTS, a telemetria da matriz e o
+limite tambem no Arduino. A imagem esta incluida no instalador.
+Os demais pinos e as correcoes de centralizacao/inversao da 1.2.4 permanecem.
+Veja `docs/UPDATE_1.2.5.md` para instalacao e roteiro de bancada.
+
 ## Atualizacao 1.2.3 — espacamento dos pedais
 
 Os quatro pedais e o botao de linearidade ocupam cinco faixas de altura igual.
@@ -80,7 +89,7 @@ autoridade pública.
 
 ## Firmware e comunicacao — versao 1.1.0
 
-Use o firmware `firmware/releases/MalthPro-Leonardo-v0.1.0.hex`. O instalador
+Use o firmware `firmware/releases/MalthPro-Leonardo-v0.1.2.hex`. O instalador
 tambem inclui uma copia em `resources/firmware/` na pasta do aplicativo.
 Os jogos leem as entradas HID e o aplicativo recebe a telemetria bruta e as
 confirmacoes do firmware pela USB serial. Os efeitos FFB dos jogos seguem

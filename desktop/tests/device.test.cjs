@@ -35,7 +35,7 @@ test('o perfil real da interface vira 65 registradores e cabe nas linhas do AVR'
   assert.deepEqual(encodeProfile(profile).slice(7, 9), [258, 806]);
 });
 test('limites invalidos e modos fora da pinagem sao rejeitados antes de enviar', () => {
-  for (const setting of [{ steeringAngleCfg: 29 }, { steeringAngleCfg: 2161 }, { pwmFreqCfg: '32KHz' },
+  for (const setting of [{ steeringAngleCfg: 29 }, { steeringAngleCfg: 1081 }, { pwmFreqCfg: '32KHz' },
     { driveModeCfg: '2PWM + 2DIR' }, { useIndexCfg: true }, { yLowCfg: 900 }, { minforceCfg: 99, maxForceCfg: 10 },
     { brakeLin50Cfg: 0 }]) {
     const profile = interfaceProfile(); Object.assign(profile.settings, setting);
@@ -43,7 +43,7 @@ test('limites invalidos e modos fora da pinagem sao rejeitados antes de enviar',
   }
   const profile = interfaceProfile();
   profile.settings.steeringAngleCfg = 30; profile.settings.pwmFreqCfg = '4KHz'; assert.equal(encodeProfile(profile)[3], 4000);
-  profile.settings.steeringAngleCfg = 2160; profile.settings.pwmFreqCfg = '20KHz'; assert.equal(encodeProfile(profile)[1], 2160);
+  profile.settings.steeringAngleCfg = 1080; profile.settings.pwmFreqCfg = '20KHz'; assert.equal(encodeProfile(profile)[1], 1080);
 });
 test('handshake, ACKs fragmentados, perfil atomico e gravacao confirmada', async () => {
   const serial = new SerialDouble(), link = new DeviceLink(serial);

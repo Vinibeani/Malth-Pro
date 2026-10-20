@@ -10,7 +10,7 @@ int main() {
   Config c; defaultConfig(c);
   check(REGISTER_COUNT == 65 && validConfig(c));
   c.value[ANGLE] = 30; check(validConfig(c));
-  c.value[ANGLE] = 2160; check(validConfig(c));
+  c.value[ANGLE] = 1080; check(validConfig(c));
   c.value[ANGLE] = 29; check(!validConfig(c)); c.value[ANGLE] = 540;
   c.value[PWM_HZ] = 4000; check(validConfig(c));
   c.value[PWM_HZ] = 20000; check(validConfig(c));

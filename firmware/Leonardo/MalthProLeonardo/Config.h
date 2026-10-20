@@ -1,6 +1,7 @@
 #pragma once
 #include <Arduino.h>
 #include "ControlMath.h"
+#include "MotorOutput.h"
 
 namespace Malth {
 // Ordem versionada e compartilhada com desktop/device-protocol.cjs.
@@ -44,9 +45,9 @@ inline void defaultConfig(Config& c) {
   // Escala 50 = Default (1x), 0 = 0,5x, 100 = 1,5x.
 }
 inline bool validConfig(const Config& c) {
-  if (c.value[CPR] < 4 || c.value[CPR] > 32000 || c.value[ANGLE] < 30 || c.value[ANGLE] > 2160 ||
+  if (c.value[CPR] < 4 || c.value[CPR] > 32000 || c.value[ANGLE] < 30 || c.value[ANGLE] > 1080 ||
       c.value[PWM_HZ] < 4000 || c.value[PWM_HZ] > 20000 ||
-      c.value[DRIVE_MODE] != 2 || c.value[USE_INDEX] != 0 ||
+      (c.value[DRIVE_MODE] != TWO_PWM_ENABLE && c.value[DRIVE_MODE] != BTS_PWM_DIR) || c.value[USE_INDEX] != 0 ||
       c.value[INVERT] < 0 || c.value[INVERT] > 1 || c.value[PEDAL_MASK] < 0 || c.value[PEDAL_MASK] > 15) return false;
   for (uint8_t p = 0; p < 4; ++p) {
     int16_t lo = c.value[ACCEL_MIN + p * 2], hi = c.value[ACCEL_MAX + p * 2];

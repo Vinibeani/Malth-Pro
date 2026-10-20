@@ -65,6 +65,7 @@ class DeviceLink {
       throw new Error('O Arduino precisa ter o programa Malth Pro 0.1.0 ou compatível.');
     }
     this.connected = true;
+    this.btsPwmDir = hello.btsPwmDir === 1;
     this.heartbeat = setInterval(() => {
       if (this.connected && this.jobs === 0) this.command('PING').catch(() => {});
     }, 500);
@@ -72,6 +73,9 @@ class DeviceLink {
   }
   sendProfile(profile, persist = false) {
     const frames = profileFrames(profile); // Validar tudo antes de interromper o motor.
+    if (profile.settings.driveModeCfg === '1PWM + 1DIR' && !this.btsPwmDir) {
+      throw new Error('Atualize o Arduino com MalthPro-Leonardo-v0.1.2.hex para usar 1PWM + 1DIR.');
+    }
     return this.enqueue(async () => {
       for (const frame of frames) {
         const command = frame.split(' ')[0];

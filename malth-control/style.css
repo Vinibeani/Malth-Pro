@@ -121,6 +121,21 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 1px s
 .effect-secondary { justify-content: space-between; margin-top: 5px; color: #8f9091; font-size: 8px; }
 .effect-secondary output { color: #b9bbbc; }
 .effect-card .range-input { margin-top: 4px; }
+.shifter-matrix-panel { position: relative; display: none; min-height: 0; align-items: center; justify-content: center; padding: 20px 24px 34px; }
+.shifter-layout.is-buttons .shifter-console-panel { display: none; }
+.shifter-layout.is-buttons .shifter-matrix-panel { display: flex; }
+.shifter-layout.is-buttons .calibrate-button { visibility: hidden; pointer-events: none; }
+.shifter-layout.is-buttons .current-gear { font-size: 76px; }
+.matrix-grid { width: min(100%, 260px); aspect-ratio: 1; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-template-rows: repeat(4, minmax(0, 1fr)); gap: 15px; }
+.matrix-key { min-width: 0; display: flex; align-items: center; justify-content: center; border: 1px solid #55595b; border-radius: 50%; color: #afb4b6; background: #202223; box-shadow: inset 0 1px 3px #0006; transition: border-color .06s, background .06s, color .06s; }
+.matrix-key strong { font: 400 17px 'Space Grotesk', sans-serif; line-height: 1; }
+.matrix-key.is-pressed { border-color: #54caed; color: #14272e; background: var(--cyan); box-shadow: 0 0 8px #22a9d440; }
+.matrix-key.is-unavailable { opacity: .65; }
+.matrix-footer { position: absolute; right: 16px; bottom: 13px; left: 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px; color: #747b7f; font-size: 8px; }
+.matrix-connection { display: inline-flex; align-items: center; gap: 6px; }
+.matrix-connection i { width: 5px; height: 5px; border-radius: 50%; background: #5e6569; }
+.matrix-connection.is-connected { color: #a1b8ab; }
+.matrix-connection.is-connected i { background: #68c68a; }
 .shifter-layout { height: 100%; display: grid; grid-template-columns: minmax(205px, .94fr) minmax(0, 2.05fr); gap: 8px; }
 .shifter-mode-panel { display: flex; flex-direction: column; align-items: stretch; padding: 14px 15px 11px; }
 .shifter-mode-label { display: flex; align-items: center; justify-content: space-between; gap: 7px; color: #b0b1b2; font-size: 9px; }
@@ -191,7 +206,7 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 1px s
 .firmware-status small { color: #687276; font-size: 7px; }
 .profile-controls { gap: 4px; }
 .profile-label { color: #8d8f90; font-size: 8px; }
-.profile-controls select { min-width: 100px; padding: 5px 17px 5px 6px; border: 0; border-bottom: 1px solid var(--cyan-dark); border-radius: 0; color: #b5b6b7; background-color: transparent; background-position: right 1px center; font-size: 8px; }
+.profile-controls select { width: 130px; min-width: 100px; max-width: 150px; padding: 5px 17px 5px 6px; overflow: hidden; text-overflow: ellipsis; border: 0; border-bottom: 1px solid var(--cyan-dark); border-radius: 0; color: #b5b6b7; background-color: transparent; background-position: right 1px center; font-size: 8px; }
 .footer-icon { width: 25px; height: 25px; justify-content: center; border: 0; border-radius: 4px; color: #aaa; background: transparent; cursor: pointer; font-size: 14px; }
 .footer-icon:hover { color: var(--cyan); background: #ffffff10; }
 .footer-icon svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
@@ -202,6 +217,7 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 1px s
 .bottom-right { justify-content: flex-end; gap: 10px; min-width: 110px; }
 .save-state { color: #718176; font-size: 7px; white-space: nowrap; }
 .save-state.is-dirty { color: #d1a85b; }
+.app-version { flex-shrink: 0; color: #7e8589; font: 400 8px 'Space Grotesk', sans-serif; letter-spacing: .3px; white-space: nowrap; }
 .toast { position: fixed; bottom: 62px; left: 50%; z-index: 20; max-width: calc(100vw - 30px); padding: 9px 13px; transform: translate(-50%, 10px); border: 1px solid #505455; border-radius: 5px; color: #eee; background: #292c2d; box-shadow: 0 8px 24px #0008; font-size: 10px; opacity: 0; pointer-events: none; transition: .16s ease; }
 .toast.is-visible { transform: translate(-50%, 0); opacity: 1; }
 .app-dialog { width: min(760px, calc(100vw - 28px)); max-height: min(88vh, 700px); padding: 15px; overflow: auto; border: 1px solid #4b4d4e; border-radius: 8px; color: var(--text); background: #242627; box-shadow: 0 22px 75px #000c; }
@@ -241,6 +257,13 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 1px s
 .dialog-footer { justify-content: space-between; gap: 10px; margin-top: 12px; padding-top: 9px; border-top: 1px solid #37393a; color: #747879; font-size: 8px; }
 .dialog-footer .button { min-height: 27px; }
 .small-dialog { width: min(390px, calc(100vw - 28px)); }
+.profile-name-field { display: flex; flex-direction: column; gap: 7px; color: #b5b7b8; font-size: 10px; }
+.profile-name-field input { width: 100%; min-height: 32px; padding: 6px 8px; border: 1px solid #45494b; border-radius: 4px; color: #e0e3e4; background: #1e2021; font: inherit; }
+.profile-name-field input:focus { outline: 1px solid var(--cyan); border-color: var(--cyan); }
+.profile-name-hint, .profile-name-error { margin: 7px 0 0; font-size: 9px; }
+.profile-name-hint { color: #80878a; }
+.profile-name-error { color: #ed858a; }
+.profile-name-actions { justify-content: flex-end; }
 .dialog-copy { margin: 13px 0 18px; color: #aeb0b1; font-size: 10px; line-height: 1.6; }
 .linearity-chart { width: 100%; height: auto; margin: 2px 0 12px; }
 .chart-grid { fill: none; stroke: #454849; stroke-width: 1; }
@@ -282,17 +305,15 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 1px s
 .settings-dialog::backdrop { background: #05060635; backdrop-filter: none; }
 .settings-section { padding: 2px 0 7px; border-bottom: 1px solid #3a3c3d; }
 .settings-section + .settings-section { padding-top: 8px; }
+.settings-fixed-mode { color: #c5c7c8; font-size: 9px; }
+.settings-mode-note { margin: 5px 0 0; color: #85898b; font-size: 8px; line-height: 1.5; }
 .settings-legend { display: flex; align-items: center; gap: 7px; margin-bottom: 5px; color: #c0c2c3; font-size: 9px; }
 .settings-legend::after { height: 1px; flex: 1; background: #4a4c4d; content: ''; }
-.settings-cpr-row { min-height: 38px; display: grid; grid-template-columns: 34px minmax(72px, 1fr) auto; align-items: end; gap: 6px; color: #aeb0b1; font-size: 8px; }
+.settings-cpr-row { min-height: 38px; display: grid; grid-template-columns: 54px minmax(72px, 1fr); align-items: end; gap: 6px; color: #aeb0b1; font-size: 8px; }
 .settings-cpr-row > label:first-child { padding-bottom: 6px; }
 .settings-cpr-value { display: flex; flex-direction: column; gap: 1px; }
 .settings-cpr-value small { color: #777a7b; font-size: 7px; }
 .settings-cpr-value input { width: 100%; height: 20px; padding: 0 3px; border: 0; border-bottom: 1px solid var(--cyan-dark); border-radius: 0; color: #c5c7c8; background: transparent; font-size: 9px; }
-.z-index-toggle { display: inline-flex; align-items: center; gap: 5px; padding-bottom: 4px; white-space: nowrap; cursor: pointer; }
-.z-index-toggle input { position: absolute; width: 1px; height: 1px; opacity: 0; }
-.z-index-toggle > span { width: 14px; height: 14px; border: 1px solid #168bb1; border-radius: 2px; background: #202223; }
-.z-index-toggle input:checked + span { background: var(--cyan); box-shadow: inset 0 0 0 3px #242526; }
 .settings-select-row { min-height: 29px; display: grid; grid-template-columns: 54px minmax(0, 1fr); align-items: center; gap: 5px; color: #aeb0b1; font-size: 8px; }
 .settings-select-row select { width: 100%; min-width: 0; height: 23px; padding: 2px 18px 2px 4px; border: 0; border-bottom: 1px solid var(--cyan-dark); border-radius: 0; color: #bac6ca; background-color: transparent; background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='m2 2 4 4 4-4' stroke='%2392999f' stroke-width='1.5' fill='none'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 3px center; font-size: 8px; appearance: none; }
 .settings-actions { display: flex; justify-content: center; gap: 8px; padding-top: 9px; }

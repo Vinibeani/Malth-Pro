@@ -11,16 +11,16 @@ function number(value, fallback, lo, hi, label) {
 function encodeProfile(profile) {
   if (!profile || typeof profile.settings !== 'object' || !profile.settings) throw new TypeError('Perfil inválido.');
   const s = profile.settings;
-  if (s.driveModeCfg !== undefined && s.driveModeCfg !== '2PWM + 1DIR') {
-    throw new RangeError('Esta versão usa BTS7960 em 2PWM + 1DIR, conforme sua pinagem.');
-  }
+  const driveMode = { '2PWM + 1DIR': 2, '1PWM + 1DIR': 4 }[s.driveModeCfg ?? '2PWM + 1DIR'];
+  if (driveMode === undefined) throw new RangeError('Esse modo exige outra ligação. Use 2PWM + 1DIR ou 1PWM + 1DIR na BTS7960 com D8 comum.');
+  if (s.hbridgeCfg !== undefined && s.hbridgeCfg !== 'BTS7960') throw new RangeError('A ponte H deste projeto é a BTS7960.');
   if (s.useIndexCfg) throw new RangeError('O sinal Z não está conectado no esquema confirmado. Desmarque Índice Z.');
   const pwm = Number(String(s.pwmFreqCfg ?? '16KHz').replace(/khz/i, '').trim()) * 1000;
   const regs = [
     number(s.cprCfg, 4000, 4, 32000, 'CPR'),
-    number(s.steeringAngleCfg, 540, 30, 2160, 'Ângulo'),
+    number(s.steeringAngleCfg, 540, 30, 1080, 'Ângulo'),
     s.invertSteeringCfg ? 1 : 0,
-    number(pwm, 16000, 4000, 20000, 'Frequência PWM'), 2, 0,
+    number(pwm, 16000, 4000, 20000, 'Frequência PWM'), driveMode, 0,
     (s.enableAccelCfg !== false ? 1 : 0) | (s.enableBrakeCfg !== false ? 2 : 0) |
     (s.enableClutchCfg ? 4 : 0) | (s.enableHandbrakeCfg ? 8 : 0),
   ];
