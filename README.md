@@ -3,33 +3,17 @@
 Aplicativo para Windows e firmware para Arduino Leonardo, desenvolvidos para
 configurar um volante com Force Feedback, pedais e câmbio.
 
-Projeto pessoal, mantido neste repositório privado para backup e controle de versões.
+**Aplicativo Windows 1.4.1 · Firmware 0.2.0.** Escolha o tema em
+**Configurações → Aparência**. O jogo controla o Force Feedback diretamente,
+mesmo com o aplicativo fechado. A placa carrega o perfil salvo ao iniciar.
 
-![Interface do Malth Pro](docs/images/malth-pro-principal.png)
+| Tema claro | Tema escuro |
+| --- | --- |
+| ![Configurações do Malth Pro 1.4.1 no tema claro](docs/images/malth-pro-1.4.1-claro.png) | ![Configurações do Malth Pro 1.4.1 no tema escuro](docs/images/malth-pro-1.4.1-escuro.png) |
 
-*Tela principal da versão 1.2.5, capturada sem conexão com o Arduino.*
-
-**Versão atual: 1.4.1 (firmware 0.2.0).** O novo layout oferece tema claro e
-escuro em **Configurações → Aparência**. O Force Feedback funciona direto pelo
-jogo, com o perfil gravado na placa. Consulte as [notas da versão 1.4.1](docs/UPDATE_1.4.1.md)
-e o [roteiro de bancada do firmware 0.2.0](docs/UPDATE_1.4.0.md).
-Força definida pelo perfil: [notas da versão 1.2.8](docs/UPDATE_1.2.8.md).
-Recuperação e diagnóstico USB: [notas da versão 1.2.9](docs/UPDATE_1.2.9.md).
-Contorno original do ícone: [notas da versão 1.2.10](docs/UPDATE_1.2.10.md).
-Batentes sem antecipação: [notas da versão 1.2.11](docs/UPDATE_1.2.11.md).
-Veja também o [roteiro de bancada](docs/UPDATE_1.2.5.md).
-
-![Matriz de 16 botões](docs/images/malth-pro-matriz.png)
-
-*Câmbio → Modo → Botões: os indicadores acendem em azul quando os botões físicos são pressionados.*
-
-Comunicação de configuração por HID: [notas da versão 1.3.0](docs/UPDATE_1.3.0.md).
-
-Correção da declaração FFB para um eixo e modelos de volante: [notas 1.3.1](docs/UPDATE_1.3.1.md).
-
-Efeitos, curva do freio/Hall e volante Fórmula1: [notas1.3.2](docs/UPDATE_1.3.2.md).
-
-Reset USB PID e diagnóstico no ETS2: [notas1.3.3](docs/UPDATE_1.3.3.md).
+[Notas da versão 1.4.1](docs/UPDATE_1.4.1.md) ·
+[Roteiro de bancada do firmware 0.2.0](docs/UPDATE_1.4.0.md) ·
+[Histórico do projeto](docs/HISTORICO_COMPLETO.md)
 
 ## Recursos
 
@@ -71,8 +55,8 @@ Veja [os modos e o roteiro de teste PWM](docs/PWM_BTS7960.md).
 2. Execute o instalador do Windows e siga as etapas da instalação.
 3. Abra **Malth Pro** pelo atalho criado.
 
-Os instaladores de desenvolvimento usam um certificado local de teste.
-A confiança desse certificado vale para o PC onde ele foi configurado.
+O instalador Windows x64 da versão 1.4.1 está sem assinatura digital.
+O SHA-256 consta nas [notas da versão](docs/UPDATE_1.4.1.md).
 Instruções para gerar o instalador: [desktop/README.md](desktop/README.md).
 
 ## Renomear e excluir perfis
