@@ -1,0 +1,11 @@
+build/
+tooling/cli/
+tooling/data/
+tooling/downloads/
+tooling/emulator/
+tooling/staging/
+tooling/user/
+tooling/arduino-cli.yaml
+releases/*.elf
+releases/*.eep
+releases/*with_bootloader*
